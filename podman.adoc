@@ -1,0 +1,110 @@
+= Podman
+:experimental: true
+:product-name:
+
+This cheat sheet covers the complete podman command set. 
+Container is either a container name or a container ID. 
+If tag is omitted in image:tag, the default value is latest. 
+Any command or option with a dagger (†) must be run as root. 
+
+== Finding images
+
+`podman images`:: List all local images
+`podman history _image:tag_`:: Display information about how an image was built
+`podman login _registryURL_ -u _username_ [-p _password_]`:: Log in to a remote registry
+`podman pull _registry/username/image:tag_`:: Pull an image from a remote registry
+`podman search _searchString_`:: 
+Search local cache and remote registries for images
+
+NOTE: The list of registries is defined in `/etc/containers/registries.conf`
+
+`podman logout`:: Log out of the current container registry
+
+== Building images
+
+`podman build -t _image:tag_`:: Build and tag an image using the instructions in Dockerfile in the current directory (don’t forget the dot!)
+`podman build -t _image:tag_ -f _Dockerfile2_`:: Same as above, but with a different Dockerfile
+`podman tag _image:tag_ [_registry/username/_]_image:tag_`:: Tag an image 
+
+== Running images
+
+`podman run --rm -it [--name _name_] _image:tag command_`::
+Run a container based on a given image.
+[cols="25,75"]
+|===
+
+|`--rm`
+|Remove the container after it exits
+
+|`-it`
+| Connect the container to the terminal
+
+|`--name _name_`
+|Give the container a name
+
+|`_image:tag_`
+|The image used to create the container
+
+|`command`
+| A command to run (`/bin/bash` for example)
+|===
+
+.Other options
+****
+`-p __8080:32000_`:: † Expose container port 8080 as localhost:32000
+`-v _/dev:/ldev_`:: † Map the `/dev` directory on localhost to a volume named `/ldev` inside the container
+****
+
+`podman commit _container newImage:tag_`:: Create a new image based on the current state of a running container
+`podman ps`:: List all running containers
+`pdoman create [--name _name_] _image:tag_`:: Create (but don't start) a container from an image
+`podman start _container_`:: Start an existing container from an image
+`podman restart _container_`:: Restart an existing container
+`podman wait _container1_ [_container2..._]`:: Wait on one or more containers to stop
+`podman stop _container_`:: Stop a running container gracefully
+`podman kill _container_`:: Stop a running container immediately
+`podman rm [-f] _container_`:: Remove a container (use `-f` if the container is running)
+`podman stats [_container_]`:: Display a live stream of a container's resource usage (or all containers)
+`podman inspect _container_`:: Return metadata (in JSON) about a running container 
+
+== Working with container processes and resources
+
+`podman ps (--all)`:: Listing the running containers on the system
+`podman attach _container_`::
+Attach to a running container and view its output or control it + 
+kbd:[Ctrl+p] kbd:[Ctrl+q] detaches from the container but leaves it running. 
+
+`podman exec _container command_`:: Execute a command in a running container
+`podman top _container_`:: Display the running processes of a container
+`podman logs [-tail] _container_`:: Display the logs of a container
+† `podman pause [_container_]`:: Pause all the processes in a container (or all containers)
+† `podman unpause [_container_]`:: Unpause all processes in a container (or all containers) 
+`podman port _container_`:: List the port mappings from a container to localhost 
+
+== Working with a container's filesystem
+
+`podman diff _container_`:: Display all the changes to a container’s filesystem
+`podman mount _container_`:: 
+Copy files and folders between a container and localhost 
+Use `podman mount`, copy files with `cp` or any Linux tool you like (`tar` or `dnf`, for example), then use `podman umount`
+`podman mount _container_`:: Mount a container’s root filesystem
+`podman umount _container_`:: Unmount a container’s root filesystem
+`podman import _tarball_`:: Import a tarball and save it as a filesystem image
+`podman export [-o _outputFile_] _container_`:: Export the container’s filesystem to a tar file
+`podman save [-o _archiveFile_] [--format _docker-archive_ | _oci-archive_ | _oci-dir_ | _docker-dir_] _image:tag_`:: Save an image in docker-archive (default) or another format
+`podman load -i _archiveFile_`:: Load a saved image from docker-archive or another format 
+
+== Sharing images
+
+`podman push [_registry/username/_]_image:tag_`:: Push an image to a remote registry
+`podman rmi [-f] _image:tag_`:: Remove a local image from local cache (use -f to force removal)  
+`podman rmi [-f] [_registry/username/_]_image:tag_`:: 
+Remove a remote image from local cache (use -f to force removal)
+
+NOTE: This does not remove the image from the remote registry. 
+
+== Miscellaneous
+
+`podman version`:: Display podman version information
+`podman info`:: Display information about the podman environment
+
