@@ -84,7 +84,6 @@ kbd:[Ctrl+p] kbd:[Ctrl+q] detaches from the container but leaves it running.
 
 `podman diff _container_`:: Display all the changes to a container’s filesystem
 Copy files and folders between a container and localhost:: 
-`podman mount _container_` +
 Use `podman mount`, copy files with `cp` or any Linux tool you like (`tar` or `dnf`, for example), then use `podman umount`
 `podman mount _container_`:: Mount a container’s root filesystem
 `podman umount _container_`:: Unmount a container’s root filesystem
