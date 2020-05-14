@@ -1,0 +1,104 @@
+= odo
+:experimental: false
+:product-name: odo
+
+All odo commands require a _context_ to indicate the project and "application" in use. When a component is created in a project's source code directory, this context information is stored in a directory named `.odo`.
+
+Most commands, other than for creating a component, require this context information. If the command is run from within a project that has the `.odo` directory, odo will automatically read the context information from it.
+
+If a command is run outside of an odo project, the context can be specified in one of two ways:
+
+* Using the `--context` flag to indicate the project directory containing an `.odo` directory.
+* Explicitly specifying the OpenShift project and odo application with the `--project` and `--app` flags respectively.
+
+== Project Management
+
+`odo project create _name_`:: create a new project
+`odo project list`:: list all projects in the cluster
+`odo project get`:: display the currently active project
+`odo project set _name_`:: make the specified project active
+`odo app list`:: list all applications in the current project
+
+== Querying the Catalog
+
+`odo catalog list components`:: list available component backends
+`odo catalog search component _string_`:: list all components whose name contains the text in _string_
+`odo catalog list services`:: list available deployable services
+`odo catalog search service _string_`:: list all services whose name contains the text in _string_
+`odo catalog describe service _name_`:: display details about the given service
+
+== Creating & Deleting Components
+
+`odo create`:: start the interactive component creation
+`odo create _component_`:: creates a new component of the given type, using the current directory for its source code
+`odo create _component_ _name_`:: same as above, using the specified _name_ as the name of the component in odo
+
+The following flags may be specified when creating a component.
+
+[cols="35,65"]
+|===
+
+|`--app _app-name_`
+|explicitly sets an app name that the component will belong to; defaults to `app` if unspecified
+
+|`--binary _bin_`
+|configure the component to run the given binary
+
+|`--env _key1=value1,key2=value2_`
+|sets the given environment variables on the component's pod
+
+|`--port _p1,p2_`
+|sets additional exposed ports
+
+|===
+
+`odo delete`:: deletes the component indicated by the current context
+`odo delete _name_`:: deletes a specific component from the current context by name
+`odo delete --all`:: same as above, prompting the user to delete the local `.odo` directory as well
+
+`odo list`:: when run in a project directory, list all components in that project's application
+`odo list --all-apps`:: display components across all apps in the current project
+
+== Developing Components
+
+`odo push`:: push local project files into the cluster and (re)start the component's pod
+`odo push --config`:: pushes changes made to the odo configuration of the component without pushing the latest source code (see _Configuration_ below)
+`odo log`:: display the log messages for the component in the current context
+`odo log -f`:: tails the component's logging messages
+
+=== Configuration
+
+`odo config view`:: show the configuration of the component in the current context, including general metadata (such as type and project), environment variables, and resource limitations
+`odo config set _parameter_ _value_`:: sets the value of the given parameter, such as "Type" or "CPU"; using `odo config set -h` displays the possible parameters that can be set
+`odo config unset _parameter_`:: removes the explicit value for the given parameter, leaving odo to use the default
+`odo config set --env _ENV1=value1_`:: sets an environment variable that will be exposed to the component when it is run; multiple values can be set through multiple uses of the `--env` flag
+`odo config unset --env _ENV1_`:: removes the specified environment variable from the component
+
+=== URLs
+
+`odo url create`:: creates a URL for the component in the current context
+`odo url create _name_`:: creates a URL, using the specified name to refer to it through odo
+`odo url create --port _port_`:: creates a URL for the specified port; this argument is required if the component type exposes more than one port
+`odo url list`:: show all URLs for the component in the current context
+`odo url delete _name_`:: delete the URL with the specified name
+
+== Creating & Deleting Services
+
+`odo service create`:: start the interactive service creation
+`odo service create _service_`:: creates a new service of the given type using its default configuration values
+`odo service create _service_ _name_`:: same as above, using the specified _name_ as the name of the service in odo
+`odo service delete _name_`:: delete the specified service; include `-f` to skip the confirmation prompt
+
+== Linking
+
+`odo link _component-name_`:: link the specified component to the one in the current context; environment variables from the specified component will be made available in the current context component
+`odo link _service-name_`:: same as above; linking a service functions in the same way as linking a component
+`odo link _name_ --port _port_`:: indiciates which port on the given component/service to link to; this is required if the component/service exposes multiple ports
+`odo unlink _name_`:: unlinks the specified component/service from the component in the current context
+
+== Miscellaneous
+
+`odo login _cluster-url_`:: login to an OpenShift cluster
+`odo version`:: display version information about both the odo client and the connected cluster
+`odo help _command_`:: display help about a command
+`odo --complete`:: install command completion for odo
