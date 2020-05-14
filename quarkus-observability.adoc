@@ -1,0 +1,267 @@
+= Quarkus & Observability
+:experimental: true
+:product-name:
+:version: 1.4.2
+
+Observability is the ability to watch the state of a system/application based on some external outputs.
+
+These are the four important concepts to have observability correctly implemented:
+
+* Monitoring/Metrics (_Prometheus_)
+* Visualization (_Graphana_)
+* Distributed tracing (_Jaeger_)
+* Log aggregation (_Sentry_, _GELF_)
+
+This cheat sheet covers the integrations you can find in the form of extensions for Quarkus to implement observability.
+
+== Creating the project
+
+[source, bash-shell, subs=attributes+]
+----
+mvn "io.quarkus:quarkus-maven-plugin:{version}.Final:create" \
+  -DprojectGroupId="org.acme" \
+  -DprojectArtifactId="greeting" \
+  -DprojectVersion="1.0-SNAPSHOT" \
+  -DclassName="org.acme.GreetingResource" \
+  -Dpath="/hello"
+----
+
+TIP: You can generate the project in https://code.quarkus.io/.
+
+== Monitoring/Metrics
+
+Quarkus can utilize the https://github.com/eclipse/microprofile-metrics[MicroProfile Metrics spec] to provide metrics support.
+
+[source, bash]
+----
+./mvnw quarkus:add-extension -Dextensions="io.quarkus:quarkus-smallrye-metrics"
+----
+
+The metrics can be provided in _JSON_ or _OpenMetrics_ format.
+
+When the extension is present in the classpath, an endpoint is added automatically to `/metrics` providing default metrics.
+To add custom metrics, MicroProfile Metrics spec provides the next annotations:
+
+`@Timed`:: Tracks the duration of a call.
+`@SimplyTimed`:: Tracks the duration of a call without mean and distribution calculations.
+`@Metered`:: Tracks the frequency of invocations.
+`@Counted`:: Counts number of invocations.
+`@Gauge`:: Samples the value of the annotated object.
+`@ConcurrentGauge`:: Gauge to count parallel invocations.
+`@Metric`:: Used to inject a metric. Valid types are `Meter`, `Timer`, `Counter`, `Histogram`. `Gauge` type can only be produced in methods or fields.
+
+[source, java]
+----
+@GET
+//...
+@Timed(name = "checksTimer", 
+unit = MetricUnits.MILLISECONDS)
+public String hello() {}
+
+@Counted(name = "countWelcome")
+public String hello() {}
+----
+
+`@Gauge` annotation returning a measure as a gauge.
+
+[source, java]
+----
+@Gauge(name = "hottestSauce", unit = MetricUnits.NONE)
+public Long hottestSauce() {}
+----
+
+Injecting a histogram using `@Metric`.
+
+[source, java]
+----
+@Metric(name = "histogram")
+Histogram historgram;
+----
+
+Metrics can be configured in `application.properties` with the next properties:
+
+`quarkus.smallrye-metrics.path`::
+The path to the metrics handler, defaults to `/metrics`.
+
+`quarkus.smallrye-metrics.extensions.enabled`::
+If metrics are enabled or not, defaults to `true`.
+
+`quarkus.smallrye-metrics.micrometer.compatibility`::
+Applies Micrometer compatibility mode, defaults to `false`.
+
+You can apply metric annotations via CDI stereotypes:
+
+[source, java]
+----
+@Stereotype
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.TYPE, ElementType.METHOD, ElementType.FIELD })
+@Timed(name = "checksTimer", unit = MetricUnits.MILLISECONDS)
+public @interface TimedMilliseconds {
+}
+----
+
+Metrics in Quarkus also integrates with other extensions:
+
+`quarkus.hibernate-orm.metrics.enabled`:: 
+If enabled Hibernate metrics are exposed under `vendor` scope.
+
+`quarkus.mongodb.metrics.enabled`:: 
+If enabled MongoDB metrics are exposed under `vendor` scope.
+
+== Distributed Tracing
+
+Quarkus can utilize the https://github.com/eclipse/microprofile-opentracing[MicroProfile OpenTracing spec] to provide tracing support.
+
+[source, bash]
+----
+./mvnw quarkus:add-extension -Dextensions="io.quarkus:quarkus-smallrye-opentracing"
+----
+
+All the requests sent to any endpoint are traced automatically.
+
+This extension includes OpenTracing and `Jaeger` tracer support.
+
+Jaeger tracer has multiple configuration properties, but a typical example is:
+
+[source, properties]
+.application.properties
+----
+quarkus.jaeger.service-name=myservice
+quarkus.jaeger.sampler-type=const
+quarkus.jaeger.sampler-param=1
+quarkus.jaeger.endpoint=http://localhost:14268/api/traces
+----
+
+`@Traced(false)` annotation can be used to disable tracing at class or method level.
+
+`io.opentracing.Tracer` interface can be injected into a class to manipulate the information that is traced.
+
+[source, java]
+----
+@Inject
+Tracer tracer;
+
+tracer.activeSpan().setBaggageItem("key", "value");
+----
+
+You can disable the `Jaeger` extension by using `quarkus.jaeger.enabled` property.
+
+You can log the `traceId`, `spanId` and `sampled` tracing information in the Quarkus logging system by configuring the log format:
+
+[source, properties]
+----
+quarkus.log.console.format=%d{HH:mm:ss} %-5p traceId=%X{traceId}, spanId=%X{spanId}, sampled=%X{sampled} [%c{2.}] (%t) %s%e%n
+----
+
+Tracing in Quarkus also integrates with other extensions:
+
+=== JDBC Tracer
+
+Adds a span for each JDBC queries.
+
+[source, xml]
+----
+<dependency>
+    <groupId>io.opentracing.contrib</groupId>
+    <artifactId>opentracing-jdbc</artifactId>
+</dependency>
+----
+
+Configure JDBC driver apart from tracing properties seen before:
+
+[source, properties]
+----
+# add ':tracing' to your database URL
+quarkus.datasource.url=jdbc:tracing:postgresql://localhost:5432/mydatabase
+quarkus.datasource.driver=io.opentracing.contrib.jdbc.TracingDriver
+quarkus.hibernate-orm.dialect=org.hibernate.dialect.PostgreSQLDialect
+----
+
+=== AWS XRay
+
+If you are building native images, and want to use AWS X-Ray Tracing with your lambda you will need to include `quarkus-amazon-lambda-xray` as a dependency in your pom.
+
+== Log Aggregation
+
+=== Sentry
+
+Quarkus integrates with https://sentry.io[Sentry] for logging errors into an error monitoring system.
+
+[source, bash]
+----
+./mvnw quarkus:add-extension  -Dextensions="quarkus-logging-sentry"
+----
+
+As an example if you want to send all errors occuring in the package `org.example` to Sentry with DSN `https://abcd@sentry.io/1234`, you should configure it in the follwoing way:
+
+[source, properties]
+.application.properties
+----
+quarkus.log.sentry=true
+quarkus.log.sentry.dsn=https://abcd@sentry.io/1234
+quarkus.log.sentry.level=ERROR
+quarkus.log.sentry.in-app-packages=org.example
+----
+
+Full list of configuration properties for Sentry are:
+
+`quarkus.log.sentry.enable`::
+Enables the Sentry logging extension, defaults to `false`.
+
+`quarkus.log.sentry.dsn`::
+The _DSN_ where events are sent.
+
+`quarkus.log.sentry.level`::
+The log level, defaults to `WARN`.
+
+`quarkus.log.sentry.in-app-packages`::
+Configures application package prefixes.
+
+`quarkus.log.sentry.environment`::
+Sets the environment value.
+
+`quarkus.log.sentry.release`::
+Sets the release value.
+
+=== GELF format
+
+You can configure the output logging to be in _GELF_ format instead of plain text.
+
+[source, shell-session]
+----
+./mvnw quarkus:add-extension -Dextensions="quarkus-logging-gelf"
+----
+
+`quarkus.log.handler.gelf.enabled`::
+Enables _GELF_ logging handler, defaults to `false`.
+
+`quarkus.log.handler.gelf.host`::
+The Hostname/IP of Logstash/Graylof. Prepend `tcp:` for using TCP protocol, defaults to `udp:localhost`.
+
+`quarkus.log.handler.gelf.port`::
+The port, defaults to `12201`.
+
+`quarkus.log.handler.gelf.version`::
+The _GELF_ version, defaults to `1.1`.
+
+`quarkus.log.handler.gelf.extract-stack-trace`::
+Posts Stack-Trace to StackTrace field, defaults to `true`.
+
+`quarkus.log.handler.gelf.stack-trace-throwable-reference`::
+Gets the cause level to stack trace. `0` is fulls tack trace, defaults to `0`.
+
+`quarkus.log.handler.gelf.filter-stack-trace`::
+Sets the stack-Trace filtering, defaults to `false`.
+
+`quarkus.log.handler.gelf.timestamp-pattern`::
+Sets the tiemstamp format in Java Date pattern, defaults to `yyyy-MM-dd HH:mm:ss,SSS`.
+
+`quarkus.log.handler.gelf.level`::
+Sets the log level using `java.util.logging.Level` class, defaults to `ALL`.
+
+`quarkus.log.handler.gelf.facility`::
+The name of the facility, defaults to `jboss-logmanager`.
+
+`quarkus.log.handler.gelf.additional-field.<field>.<subfield>`::
+Posts additional fields (ie `quarkus.log.handler.gelf.additional-field.field1.type=String`)
