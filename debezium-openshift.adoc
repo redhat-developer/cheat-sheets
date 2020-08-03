@@ -82,8 +82,8 @@ A Kafka Connect service has a RESTful API for managing and deploying connectors;
 
 [source, bash,indent=0]
 ----
-export DEBEZIUM_SVC=my-connect-cluster-connect-connect-api
-export CONNECTOR=inventory-connector-mysql
+export DEBEZIUM_CONNECT_SVC=$(oc get svc -l app.kubernetes.io/name=kafka-connect -o json | jq -r '.items[] | .metadata.name')
+export CONNECTOR=inventory-connector
 ----
 
 === Create Debezium Connector
@@ -93,7 +93,7 @@ export CONNECTOR=inventory-connector-mysql
 oc exec -i my-cluster-kafka-0 -- curl -X POST \
     -H "Accept:application/json" \
     -H "Content-Type:application/json" \
-    http://$DEBEZIUM_SVC:8083/connectors -d @- <<'EOF'
+    http://$DEBEZIUM_CONNECT_SVC:8083/connectors -d @- <<'EOF'
 {
     "name": "$CONNECTOR",
     "config": {
@@ -120,14 +120,14 @@ EOF
 oc exec -i my-cluster-kafka-0 -- curl -X GET \
     -H "Accept:application/json" \
     -H "Content-Type:application/json" \
-    http://debezium-marketing-connector-connect-api:8083/connectors
+    http://$DEBEZIUM_CONNECT_SVC:8083/connectors
 ----
 
 === Update Connector
 
 [source, bash,indent=0]
 ----
-oc exec -i my-cluster-kafka-0 -- curl -i -X PUT -H "Accept:application/json" -H "Content-Type:application/json" http://$DEBEZIUM_SVC:8083/connectors/$CONNECTOR/config/ -d @- <<'EOF'
+oc exec -i my-cluster-kafka-0 -- curl -i -X PUT -H "Accept:application/json" -H "Content-Type:application/json" http://$DEBEZIUM_CONNECT_SVC:8083/connectors/$CONNECTOR/config/ -d @- <<'EOF'
 {
         "connector.class": "io.debezium.connector.mysql.MySqlConnector",
         "tasks.max": "1",
@@ -140,53 +140,40 @@ oc exec -i my-cluster-kafka-0 -- curl -i -X PUT -H "Accept:application/json" -H 
         "database.whitelist": "inventory",
         "database.history.kafka.bootstrap.servers": "my-cluster-kafka-bootstrap:9092",
         "database.history.kafka.topic": "schema-changes.inventory",
-        "transforms": "unwrap, order_date",
-        "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
-        "transforms.unwrap.drop.tombstones": "false",
-        "transforms.unwrap.operation.header": "true",
-        "transforms.order_date.type": "org.apache.kafka.connect.transforms.TimestampConverter$Value",
-        "transforms.order_date.target.type": "string",
-        "transforms.order_date.field": "order_date",
-        "transforms.order_date.format": "yyyy/MM/dd",
-        "key.converter": "org.apache.kafka.connect.json.JsonConverter",
-        "key.converter.schemas.enable": "false",
-        "value.converter": "org.apache.kafka.connect.json.JsonConverter",
-        "value.converter.schemas.enable": "false",
-        "time.precision.mode": "connect",
         "include.schema.changes": "false"
     }
 }
 EOF
 ----
 
-=== Delete Connector
+=== Delete Connector:
 
 [source, bash,indent=0]
 ----
 oc exec -i my-cluster-kafka-0 -- curl -X DELETE \
     -H "Accept:application/json" \
     -H "Content-Type:application/json" \
-    http://debezium-marketing-connector-connect-api:8083/connectors/inventory-connector
+    http://$DEBEZIUM_CONNECT_SVC:8083/connectors/$CONNECTOR
 ----
 
-=== Get Connectors
-
-[source, bash,indent=0]
-----
-oc exec -i my-cluster-kafka-0 -- curl -X GET \
-    -H "Accept:application/json" \
-    -H "Content-Type:application/json" \
-    http://debezium-marketing-connector-connect-api:8083/connectors
-----
-
-=== Check connector status
+=== Check connector status:
 
 [source, bash,indent=0]
 ----
 oc exec -i my-cluster-kafka-0 -- curl -X GET \
     -H "Accept:application/json" \
     -H "Content-Type:application/json" \
-    http://debezium-marketing-connector-connect-api:8083/connectors/inventory-connector/status
+    http://$DEBEZIUM_CONNECT_SVC:8083/connectors/$CONNECTOR/status
+----
+
+=== Get all connectors:
+
+[source, bash,indent=0]
+----
+oc exec -i my-cluster-kafka-0 -- curl -X GET \
+    -H "Accept:application/json" \
+    -H "Content-Type:application/json" \
+    http://$DEBEZIUM_CONNECT_SVC:8083/connectors
 ----
 
 === check the available connector plugins:
@@ -196,7 +183,7 @@ oc exec -i my-cluster-kafka-0 -- curl -X GET \
 oc exec -i my-cluster-kafka-0 -- curl -X GET \
     -H "Accept:application/json" \
     -H "Content-Type:application/json" \
-    http://debezium-marketing-connector-connect-api:8083/connector-plugins
+    http://$DEBEZIUM_CONNECT_SVC:8083/connector-plugins
 ----
 
 == Logs
