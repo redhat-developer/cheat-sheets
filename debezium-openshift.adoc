@@ -179,11 +179,14 @@ Trust self-signed certificates, defaults to `false`.
 
 == Logs
 
+Change the log level to trace of `io.debezium` as follows:
 [source, bash-shell, subs=attributes+]
 ----
-# you can change the log level to trace of io.debezium as follows:
 oc exec -it my-connect-cluster-connect-2-xxxxx -- curl -s -X PUT -H "Content-Type:application/json"  http://localhost:8083/admin/loggers/io.debezium -d '{"level": "TRACE"}'
+----
 
-# you can revert the log level back to info as follows:
+Revert the log level back to `INFO` as follows:
+[source, bash-shell, subs=attributes+]
+----
 oc exec -it my-connect-cluster-connect-2-xxxxx -- curl -s -X PUT -H "Content-Type:application/json"  http://localhost:8083/admin/loggers/io.debezium -d '{"level": "INFO"}'
 ----
