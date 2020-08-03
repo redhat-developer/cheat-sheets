@@ -3,7 +3,7 @@
 :product-name:
 :version: 1.2.0
 
-This cheat sheet covers how to deploy/create/update a Debezium Connector on OpenShift.
+This cheat sheet covers how to deploy/create/run/update a Debezium Connector on OpenShift.
 
 == What’s Debezium ?
 
@@ -12,9 +12,11 @@ Debezium is durable and fast, so your apps can respond quickly and never miss an
 
 == Deployments
 
-Debezium is built on top of Apache Kafka on OpenShift (Strimzi), which is proven, scalable, and handles very large volumes of data very quickly:
+Debezium is built on top of Apache Kafka on `Kubernetes` and `OpenShift` with the Strimzi project. `Strimzi` provides a set of operators and container images for running Kafka on Kubernetes and OpenShift. 
 
-<1> Creating a container image from the Kafka Connect base image using `Docker`:
+Extend Kafka Connect with Debezium Binaries: 
+
+<1> `Docker`:
 
 [source, bash-shell, subs=attributes+]
 ----
@@ -33,22 +35,21 @@ COPY ./plugins/ /opt/kafka/plugins/
 USER 1001
 EOF
 
-oc new-build --binary --name=debezium-connect -l app=debezium-connect
-oc patch bc/debezium-connect -p '{"spec":{"strategy":{"dockerStrategy":{"dockerfilePath":"Dockerfile"}}}}'
-oc set build-secret --pull bc/debezium-connect registry-redhat-io
-oc start-build debezium-connect --from-dir=. --follow
+oc new-build --binary --name=$IMG_NAME -l app=$IMG_NAME
+oc patch bc/$IMG_NAME -p '{"spec":{"strategy":{"dockerStrategy":{"dockerfilePath":"Dockerfile"}}}}'
+oc start-build $IMG_NAME --from-dir=. --follow
 
 oc create -f - <<EOF
 apiVersion: kafka.strimzi.io/v1beta1
 kind: KafkaConnect
 metadata:
-  name: my-connect-cluster
-  #annotations:
-    #strimzi.io/use-connector-resources: "true"
+  name: $IMG_NAME
+  annotations:
+    strimzi.io/use-connector-resources: "true"
 spec:
   replicas: 1
   version: 2.4.0
-  image: "image-registry.openshift-image-registry.svc:5000/strimzi/debezium-connect"
+  image: "image-registry.openshift-image-registry.svc:5000/strimzi/$IMG_NAME"
   bootstrapServers: my-cluster-kafka-bootstrap:9093
   tls:
     trustedCertificates:
@@ -57,7 +58,7 @@ spec:
 EOF
 ----
 
-<2> Creating a container image using OpenShift builds and `Source-to-Image` (S2I):
+<2> `Source-to-Image` (S2I):
 
 [source, bash-shell, subs=attributes+]
 ----
@@ -76,9 +77,104 @@ TIP: You can generate the project in https://code.quarkus.io/ and selecting `kub
 
 Quarkus integrates with Fabric8 Kubernetes Client to access Kubernetes Server API.
 
+[source, bash-shell, subs=attributes+]
+----
+export DEBEZIUM_SVC=my-connect-cluster-connect-connect-api
+export CONNECTOR=inventory-connector-mysql
+----
 
-`quarkus.kubernetes-client.trust-certs`::
-Trust self-signed certificates, defaults to `false`.
+=== Create Debezium Connector
+
+[source, bash-shell, subs=attributes+]
+----
+oc exec -i my-cluster-kafka-0 -- curl -X POST \
+    -H "Accept:application/json" \
+    -H "Content-Type:application/json" \
+    http://$DEBEZIUM_SVC:8083/connectors -d @- <<'EOF'
+
+{
+    "name": "$CONNECTOR",
+    "config": {
+        "connector.class": "io.debezium.connector.mysql.MySqlConnector",
+        "tasks.max": "1",
+        "database.hostname": "mysql",
+        "database.port": "3306",
+        "database.user": "debezium",
+        "database.password": "dbz",
+        "database.server.id": "184054",
+        "database.server.name": "dbserver",
+        "database.whitelist": "inventory",
+        "database.history.kafka.bootstrap.servers": "my-cluster-kafka-bootstrap:9092",
+        "database.history.kafka.topic": "schema-changes.inventory"
+    }
+}
+EOF
+----
+
+=== Get Connector Details
+
+[source, bash-shell, subs=attributes+]
+----
+oc exec -i my-cluster-kafka-0 -- curl -X GET \
+    -H "Accept:application/json" \
+    -H "Content-Type:application/json" \
+    http://debezium-marketing-connector-connect-api:8083/connectors
+----
+
+=== Update Connector
+
+[source, bash-shell, subs=attributes+]
+----
+oc exec -i my-cluster-kafka-0 -- curl -i -X PUT -H "Accept:application/json" -H "Content-Type:application/json" http://$DEBEZIUM_SVC:8083/connectors/$CONNECTOR/config/ -d @- <<'EOF'
+{
+        "connector.class": "io.debezium.connector.mysql.MySqlConnector",
+        "tasks.max": "1",
+        "database.hostname": "mysql",
+        "database.port": "3306",
+        "database.user": "debezium",
+        "database.password": "dbz",
+        "database.server.id": "184054",
+        "database.server.name": "dbserver",
+        "database.whitelist": "inventory",
+        "database.history.kafka.bootstrap.servers": "my-cluster-kafka-bootstrap:9092",
+        "database.history.kafka.topic": "schema-changes.inventory",
+        "transforms": "unwrap, order_date",
+        "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
+        "transforms.unwrap.drop.tombstones": "false",
+        "transforms.unwrap.operation.header": "true",
+        "transforms.order_date.type": "org.apache.kafka.connect.transforms.TimestampConverter$Value",
+        "transforms.order_date.target.type": "string",
+        "transforms.order_date.field": "order_date",
+        "transforms.order_date.format": "yyyy/MM/dd",
+        "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "key.converter.schemas.enable": "false",
+        "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "value.converter.schemas.enable": "false",
+        "time.precision.mode": "connect",
+        "include.schema.changes": "false"
+    }
+}
+EOF
+----
+
+=== Delete Connector
+
+[source, bash-shell, subs=attributes+]
+----
+oc exec -i my-cluster-kafka-0 -- curl -X DELETE \
+    -H "Accept:application/json" \
+    -H "Content-Type:application/json" \
+    http://debezium-marketing-connector-connect-api:8083/connectors/inventory-connector
+----
+
+=== 
+
+`oc exec -i my-cluster-kafka-0 -- curl -X GET \
+    -H "Accept:application/json" \
+    -H "Content-Type:application/json" \
+    http://debezium-marketing-connector-connect-api:8083/connectors`::
+Get Connectors.
+
 
 == Logs
 
