@@ -18,7 +18,7 @@ Extend Kafka Connect with Debezium Binaries:
 
 <1> `Docker`:
 
-[source, bash-shell, subs=attributes+]
+[source, bash,indent=0]
 ----
 export IMG_NAME="debezium-connect"
 export DEBEZIUM_VERSION=1.2.0.Final
@@ -60,7 +60,7 @@ EOF
 
 <2> `Source-to-Image` (S2I):
 
-[source, bash-shell, subs=attributes+]
+[source, bash,indent=0]
 ----
 export DEBEZIUM_VERSION=1.2.0.Final
 mkdir -p plugins && cd plugins && \
@@ -77,7 +77,7 @@ TIP: You can generate the project in https://code.quarkus.io/ and selecting `kub
 
 Quarkus integrates with Fabric8 Kubernetes Client to access Kubernetes Server API.
 
-[source, bash-shell, subs=attributes+]
+[source, bash,indent=0]
 ----
 export DEBEZIUM_SVC=my-connect-cluster-connect-connect-api
 export CONNECTOR=inventory-connector-mysql
@@ -85,7 +85,7 @@ export CONNECTOR=inventory-connector-mysql
 
 === Create Debezium Connector
 
-[source, bash-shell, subs=attributes+]
+[source, bash,indent=0]
 ----
 oc exec -i my-cluster-kafka-0 -- curl -X POST \
     -H "Accept:application/json" \
@@ -113,7 +113,7 @@ EOF
 
 === Get Connector Details
 
-[source, bash-shell, subs=attributes+]
+[source, bash,indent=0]
 ----
 oc exec -i my-cluster-kafka-0 -- curl -X GET \
     -H "Accept:application/json" \
@@ -123,7 +123,7 @@ oc exec -i my-cluster-kafka-0 -- curl -X GET \
 
 === Update Connector
 
-[source, bash-shell, subs=attributes+]
+[source, bash,indent=0]
 ----
 oc exec -i my-cluster-kafka-0 -- curl -i -X PUT -H "Accept:application/json" -H "Content-Type:application/json" http://$DEBEZIUM_SVC:8083/connectors/$CONNECTOR/config/ -d @- <<'EOF'
 {
@@ -159,7 +159,7 @@ EOF
 
 === Delete Connector
 
-[source, bash-shell, subs=attributes+]
+[source, bash,indent=0]
 ----
 oc exec -i my-cluster-kafka-0 -- curl -X DELETE \
     -H "Accept:application/json" \
@@ -169,7 +169,7 @@ oc exec -i my-cluster-kafka-0 -- curl -X DELETE \
 
 === Get Connectors
 
-[source, bash, subs=attributes+]
+[source, bash,indent=0]
 oc exec -i my-cluster-kafka-0 -- curl -X GET \
     -H "Accept:application/json" \
     -H "Content-Type:application/json" \
@@ -178,7 +178,7 @@ oc exec -i my-cluster-kafka-0 -- curl -X GET \
 
 === Check connector status
 
-[source, bash, subs=attributes+]
+[source, bash,indent=0]
 oc exec -i my-cluster-kafka-0 -- curl -X GET \
     -H "Accept:application/json" \
     -H "Content-Type:application/json" \
@@ -197,13 +197,13 @@ oc exec -i my-cluster-kafka-0 -- curl -X GET \
 == Logs
 
 Change the log level to trace of `io.debezium` as follows:
-[source, bash-shell, subs=attributes+]
+[source, bash,indent=0]
 ----
 oc exec -it my-connect-cluster-connect-2-xxxxx -- curl -s -X PUT -H "Content-Type:application/json"  http://localhost:8083/admin/loggers/io.debezium -d '{"level": "TRACE"}'
 ----
 
 Revert the log level back to `INFO` as follows:
-[source, bash-shell, subs=attributes+]
+[source, bash,indent=0]
 ----
 oc exec -it my-connect-cluster-connect-2-xxxxx -- curl -s -X PUT -H "Content-Type:application/json"  http://localhost:8083/admin/loggers/io.debezium -d '{"level": "INFO"}'
 ----
