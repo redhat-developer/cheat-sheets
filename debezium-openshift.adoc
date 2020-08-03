@@ -169,6 +169,7 @@ oc exec -i my-cluster-kafka-0 -- curl -X DELETE \
 === Get Connectors
 
 [source, bash,indent=0]
+----
 oc exec -i my-cluster-kafka-0 -- curl -X GET \
     -H "Accept:application/json" \
     -H "Content-Type:application/json" \
@@ -178,6 +179,7 @@ oc exec -i my-cluster-kafka-0 -- curl -X GET \
 === Check connector status
 
 [source, bash,indent=0]
+----
 oc exec -i my-cluster-kafka-0 -- curl -X GET \
     -H "Accept:application/json" \
     -H "Content-Type:application/json" \
