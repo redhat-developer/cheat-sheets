@@ -18,7 +18,7 @@ Debezium is built on top of Apache Kafka on `Kubernetes` and `OpenShift` with th
 
 Extend Kafka Connect with Debezium Binaries: 
 
-<1> `Docker`:
+1. `Docker`:
 
 [source, bash,indent=0]
 ----
@@ -60,7 +60,7 @@ spec:
 EOF
 ----
 
-<2> `Source-to-Image` (S2I):
+2. `Source-to-Image` (S2I):
 
 [source, bash,indent=0]
 ----
