@@ -167,14 +167,32 @@ oc exec -i my-cluster-kafka-0 -- curl -X DELETE \
     http://debezium-marketing-connector-connect-api:8083/connectors/inventory-connector
 ----
 
-=== 
+=== Get Connectors
 
+[source, bash, subs=attributes+]
 `oc exec -i my-cluster-kafka-0 -- curl -X GET \
     -H "Accept:application/json" \
     -H "Content-Type:application/json" \
-    http://debezium-marketing-connector-connect-api:8083/connectors`::
-Get Connectors.
+    http://debezium-marketing-connector-connect-api:8083/connectors
+----
 
+=== Check connector status
+
+[source, bash, subs=attributes+]
+`oc exec -i my-cluster-kafka-0 -- curl -X GET \
+    -H "Accept:application/json" \
+    -H "Content-Type:application/json" \
+    http://debezium-marketing-connector-connect-api:8083/connectors/inventory-connector/status
+----
+
+=== check the available connector plugins
+
+[source, bash, subs=attributes+]
+`oc exec -i my-cluster-kafka-0 -- curl -X GET \
+    -H "Accept:application/json" \
+    -H "Content-Type:application/json" \
+    http://debezium-marketing-connector-connect-api:8083/connector-plugins
+----
 
 == Logs
 
