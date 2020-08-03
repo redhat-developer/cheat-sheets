@@ -75,7 +75,8 @@ TIP: You can generate the project in https://code.quarkus.io/ and selecting `kub
 
 == Commands
 
-Quarkus integrates with Fabric8 Kubernetes Client to access Kubernetes Server API.
+All of Debezium’s connectors are Kafka Connector source connectors, and as such they can be deployed and managed using the Kafka Connect service.
+A Kafka Connect service has a RESTful API for managing and deploying connectors; the service can be clustered and will automatically distribute the connectors across the cluster, ensuring that the connector is always running.
 
 [source, bash,indent=0]
 ----
