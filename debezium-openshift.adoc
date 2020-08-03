@@ -12,9 +12,9 @@ Debezium is durable and fast, so your apps can respond quickly and never miss an
 
 == Deployments
 
-Debezium is built on top of Apache Kafka on OpenShift (Strimzi), which is proven, scalable, and handles very large volumes of data very quickly:
+.Debezium is built on top of Apache Kafka on OpenShift (Strimzi), which is proven, scalable, and handles very large volumes of data very quickly:
 
-1. Creating a container image from the Kafka Connect base image using `Docker`:
+.. Creating a container image from the Kafka Connect base image using `Docker`:
 
 [source, bash-shell, subs=attributes+]
 ----
@@ -57,8 +57,7 @@ spec:
 EOF
 ----
 
-
-2. Creating a container image using OpenShift builds and `Source-to-Image` (S2I):
+.. Creating a container image using OpenShift builds and `Source-to-Image` (S2I):
 
 [source, bash-shell, subs=attributes+]
 ----
