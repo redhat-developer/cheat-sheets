@@ -12,7 +12,7 @@ Debezium is durable and fast, so your apps can respond quickly and never miss an
 
 image::debezium-architecture.png[I am the image alt text.]
 
-== Deployments
+== Deployment
 
 Debezium is built on top of Apache Kafka on `Kubernetes` and `OpenShift` with the https://strimzi.io[Strimzi] project. `Strimzi` provides a set of operators and container images for running Kafka on Kubernetes and OpenShift. 
 
@@ -72,8 +72,6 @@ done && \
 oc start-build my-connect-cluster-connect --from-dir=. --follow && \
 cd .. && rm -rf plugins
 ----
-
-TIP: You can generate the project in https://code.quarkus.io/ and selecting `kubernetes`, `kubernetes-client`, `health` and `kubernetes-config` extensions.
 
 == Commands
 
