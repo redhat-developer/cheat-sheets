@@ -19,7 +19,7 @@ Debezium is built on top of Apache Kafka on OpenShift (Strimzi), which is proven
 [source, bash-shell, subs=attributes+]
 ----
 export IMG_NAME="debezium-connect"
-export DEBEZIUM_VERSION=1.1.2.Final
+export DEBEZIUM_VERSION=1.2.0.Final
 
 mkdir -p plugins && cd plugins && \
 for PLUGIN in {mongodb,mysql,postgres}; do \
@@ -169,70 +169,21 @@ The application will not start if any of the configured config sources cannot be
 `quarkus.kubernetes-config.config-maps`::
 ConfigMaps to look for in the namespace that the Kubernetes Client has been configured for. Supports CSV format.
 
-== Kubernetes Client
+== Commands
 
 Quarkus integrates with Fabric8 Kubernetes Client to access Kubernetes Server API.
 
-[source, java]
-----
-@Inject
-KubernetesClient client;
-
-ServiceList myServices = client.services().list();
-
-Service myservice = client.services()
-        .inNamespace("default")
-        .withName("myservice")
-        .get();
-----
-
-Kubernetes Client can be configured programmatically:
-
-[source, java]
-----
-@Dependent
-public class KubernetesClientProducer {
-
-    @Produces
-    public KubernetesClient kubernetesClient() {
-        Config config = new ConfigBuilder()
-            .withMasterUrl("https://mymaster.com")
-            .build();
-        return new DefaultKubernetesClient(config);
-    }
-}
-----
-
-Or also in `application.properties`.
-
-By default, Kubernetes Client reads connection properties from the `~/.kube/config` folder but you can set them too by using some of the `kubernetes-client` properties:
 
 `quarkus.kubernetes-client.trust-certs`::
 Trust self-signed certificates, defaults to `false`.
 
-`quarkus.kubernetes-client.master-url`::
-URL of Kubernetes API server.
+== Logs
 
-`quarkus.kubernetes-client.namespace`::
-Default namespace.
+[source, bash-shell, subs=attributes+]
+----
+# you can change the log level to trace of io.debezium as follows:
+oc exec -it my-connect-cluster-connect-2-xxxxx -- curl -s -X PUT -H "Content-Type:application/json"  http://localhost:8083/admin/loggers/io.debezium -d '{"level": "TRACE"}'
 
-`quarkus.kubernetes-client.ca-cert-file`::
-CA certificate data.
-
-`quarkus.kubernetes-client.client-cert-file`::
-Client certificate file.
-
-`quarkus.kubernetes-client.client-cert-data`::
-Client certificate data.
-
-`quarkus.kubernetes-client.client-key-data`::
-Client key data.
-
-`quarkus.kubernetes-client.client-key-algorithm`::
-Client key algorithm.
-
-`quarkus.kubernetes-client.username`::
-Username.
-
-`quarkus.kubernetes-client.password`::
-Password.
+# you can revert the log level back to info as follows:
+oc exec -it my-connect-cluster-connect-2-xxxxx -- curl -s -X PUT -H "Content-Type:application/json"  http://localhost:8083/admin/loggers/io.debezium -d '{"level": "INFO"}'
+----
