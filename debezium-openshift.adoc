@@ -1,6 +1,6 @@
 = Debezium on OpenShift
-:experimental: true
-:product-name:
+:experimental: false
+:product-name: Debezium
 :version: 1.2.0
 
 This cheat sheet covers how to deploy/create/run/update a Debezium Connector on OpenShift.
