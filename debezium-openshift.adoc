@@ -170,7 +170,7 @@ oc exec -i my-cluster-kafka-0 -- curl -X DELETE \
 === Get Connectors
 
 [source, bash, subs=attributes+]
-`oc exec -i my-cluster-kafka-0 -- curl -X GET \
+oc exec -i my-cluster-kafka-0 -- curl -X GET \
     -H "Accept:application/json" \
     -H "Content-Type:application/json" \
     http://debezium-marketing-connector-connect-api:8083/connectors
