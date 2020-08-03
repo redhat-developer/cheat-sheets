@@ -202,12 +202,14 @@ oc exec -i my-cluster-kafka-0 -- curl -X GET \
 == Logs
 
 Change the log level to trace of `io.debezium` as follows:
+
 [source, bash,indent=0]
 ----
 oc exec -it my-connect-cluster-connect-2-xxxxx -- curl -s -X PUT -H "Content-Type:application/json"  http://localhost:8083/admin/loggers/io.debezium -d '{"level": "TRACE"}'
 ----
 
 Revert the log level back to `INFO` as follows:
+
 [source, bash,indent=0]
 ----
 oc exec -it my-connect-cluster-connect-2-xxxxx -- curl -s -X PUT -H "Content-Type:application/json"  http://localhost:8083/admin/loggers/io.debezium -d '{"level": "INFO"}'
