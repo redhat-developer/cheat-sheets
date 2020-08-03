@@ -143,7 +143,7 @@ spec:
 EOF
 ----
 
-TIP : To instantiate Kafka Connectors through specific custom resource, enable `use-connector-resources`:
+TIP: To instantiate Kafka Connectors through specific custom resource, enable `use-connector-resources`:
 `oc annotate kafkaconnects2is my-connect-cluster strimzi.io/use-connector-resources=true`
 
 === Get Connector Details
