@@ -113,7 +113,7 @@ oc exec -i my-cluster-kafka-0 -- curl -X POST \
 EOF
 ----
 
-==== Using `CR` (`C`ustom `R`esource)
+==== Using `CR` (Custom Resource)
 
 Ensure that `use-connector-resources` is enabled, you can create the connector instance by creating a specific custom resource:
 
@@ -142,6 +142,9 @@ spec:
     database.history.kafka.topic: schema-changes.inventory
 EOF
 ----
+
+TIP : To instantiate Kafka Connectors through specific custom resource, enable `use-connector-resources`:
+`oc annotate kafkaconnects2is my-connect-cluster strimzi.io/use-connector-resources=true`
 
 === Get Connector Details
 
