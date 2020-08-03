@@ -91,7 +91,6 @@ oc exec -i my-cluster-kafka-0 -- curl -X POST \
     -H "Accept:application/json" \
     -H "Content-Type:application/json" \
     http://$DEBEZIUM_SVC:8083/connectors -d @- <<'EOF'
-
 {
     "name": "$CONNECTOR",
     "config": {
