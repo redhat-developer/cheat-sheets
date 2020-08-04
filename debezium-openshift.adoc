@@ -110,7 +110,7 @@ oc exec -i my-cluster-kafka-0 -- curl -X POST \
     -H "Content-Type:application/json" \
     http://$DEBEZIUM_CONNECT_SVC:8083/connectors -d @- <<'EOF'
 {
-    "name": "$CONNECTOR",
+    "name": "inventory-connector",
     "config": {
         "connector.class": "io.debezium.connector.mysql.MySqlConnector",
         "tasks.max": "1",
@@ -132,14 +132,14 @@ EOF
 
 Ensure that `use-connector-resources` is enabled, you can create the connector instance by creating a specific custom resource:
 
-[source, bash,indent=0]
+[source, yaml,indent=0]
 ----
 oc apply -f - << EOF
 apiVersion: kafka.strimzi.io/v1alpha1
 kind: KafkaConnector
 metadata:
   name: $CONNECTOR
-  namespace: strimzi
+  namespace: myproject
   labels:
     strimzi.io/cluster: my-connect-cluster
 spec:
