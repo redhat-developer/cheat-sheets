@@ -16,7 +16,7 @@ image::debezium-architecture.png[I am the image alt text.]
 
 Debezium is built on top of Apache Kafka on `Kubernetes` and `OpenShift` with the https://strimzi.io[Strimzi] project. `Strimzi` provides a set of operators and container images for running Kafka on Kubernetes and OpenShift. 
 
-* Extend Kafka Connect with Debezium Binaries: 
+Extend Kafka Connect with Debezium Binaries: 
 
 ** `Docker`:
 
