@@ -46,7 +46,7 @@ cd ..
 cat <<EOF > Dockerfile
 FROM strimzi/kafka:0.19.0-kafka-2.5.0
 USER root:root
-COPY ./my-plugins/ /opt/kafka/plugins/
+COPY ./plugins/ /opt/kafka/plugins/
 USER 1001
 EOF
 
@@ -71,7 +71,7 @@ spec:
       - secretName: my-cluster-cluster-ca-cert
         certificate: ca.crt
 EOF
-rm -rf plugins
+rm -rf plugins && rm Dockerfile
 ----
 
 ** `Source-to-Image` (S2I):
