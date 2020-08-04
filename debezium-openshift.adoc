@@ -161,6 +161,15 @@ EOF
 TIP: Enable `use-connector-resources` to instantiate Kafka Connectors through specific custom resource :
 `oc annotate kafkaconnects2is my-connect-cluster strimzi.io/use-connector-resources=true`
 
+[NOTE]
+====
+`oc get kctr --selector strimzi.io/cluster=my-connect-cluster -o name`::
+Check that the resource was created:
+
+`oc get kctr/inventory-connector -o yaml | yq read - status`::
+Check the status of the Debezium Connector from the resource
+====
+
 === Get Connector Details
 
 [source, bash,indent=0]
