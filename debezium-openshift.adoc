@@ -86,7 +86,7 @@ export CONNECTOR=inventory-connector
 
 === Create Debezium Connector
 
-==== Using RESTful API
+** Using RESTful API
 
 [source, bash,indent=0]
 ----
@@ -113,7 +113,7 @@ oc exec -i my-cluster-kafka-0 -- curl -X POST \
 EOF
 ----
 
-==== Using `CR` (Custom Resource)
+** Using `CR` (Custom Resource)
 
 Ensure that `use-connector-resources` is enabled, you can create the connector instance by creating a specific custom resource:
 
