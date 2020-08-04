@@ -21,11 +21,11 @@ Debezium is built on top of Apache Kafka on `Kubernetes` and `OpenShift` with th
 [source, bash,indent=0]
 ----
 oc new-project debezium
-oc apply -f https://github.com/strimzi/strimzi-kafka-operator/releases/download/0.18.0/strimzi-cluster-operator-0.18.0.yaml
+oc apply -f https://github.com/strimzi/strimzi-kafka-operator/releases/download/0.19.0/strimzi-cluster-operator-0.19.0.yaml
 # Deploy a single node Kafka broker
-oc apply -f https://github.com/strimzi/strimzi-kafka-operator/raw/0.18.0/examples/kafka/kafka-persistent-single.yaml
+oc apply -f https://github.com/strimzi/strimzi-kafka-operator/raw/0.19.0/examples/kafka/kafka-persistent-single.yaml
 # Deploy a single instance of Kafka Connect with no plug-in installed
-oc apply -f https://github.com/strimzi/strimzi-kafka-operator/raw/0.18.0/examples/kafka-connect/kafka-connect-s2i-single-node-kafka.yaml
+oc apply -f https://github.com/strimzi/strimzi-kafka-operator/raw/0.19.0/examples/kafka-connect/kafka-connect-s2i-single-node-kafka.yaml
 ----
 
 ==== Extend Kafka Connect with Debezium Binaries: 
