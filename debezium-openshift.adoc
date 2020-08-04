@@ -94,7 +94,8 @@ A Kafka Connect service has a RESTful API for managing and deploying connectors;
 
 [source, shell,indent=0]
 ----
-export DEBEZIUM_CONNECT_SVC=$(oc get svc -l app.kubernetes.io/name=kafka-connect -o json | jq -r '.items[] | .metadata.name')
+export DEBEZIUM_CONNECT_SVC=my-connect-cluster-connect-api
+# choose the kafka connect service by running oc get svc -l app.kubernetes.io/name=kafka-connect -o json | jq -r '.items[] | .metadata.name'
 export CONNECTOR=inventory-connector
 ----
 
