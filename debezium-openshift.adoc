@@ -33,7 +33,7 @@ oc apply -f https://github.com/strimzi/strimzi-kafka-operator/raw/0.19.0/example
 
 ** `Docker`:
 
-[source, bash,indent=0]
+[source, shell,indent=0]
 ----
 export IMG_NAME="debezium-connect"
 export DEBEZIUM_VERSION=1.2.0.Final
@@ -63,8 +63,8 @@ metadata:
     strimzi.io/use-connector-resources: "true"
 spec:
   replicas: 1
-  version: 2.4.0
-  image: "image-registry.openshift-image-registry.svc:5000/strimzi/$IMG_NAME"
+  version: 2.5.0
+  image: "image-registry.openshift-image-registry.svc:5000/myproject/$IMG_NAME"
   bootstrapServers: my-cluster-kafka-bootstrap:9093
   tls:
     trustedCertificates:
@@ -92,7 +92,7 @@ cd .. && rm -rf plugins
 All of Debezium’s connectors are Kafka Connector source connectors, and as such they can be deployed and managed using the Kafka Connect service.
 A Kafka Connect service has a RESTful API for managing and deploying connectors; the service can be clustered and will automatically distribute the connectors across the cluster, ensuring that the connector is always running.
 
-[source, bash,indent=0]
+[source, shell,indent=0]
 ----
 export DEBEZIUM_CONNECT_SVC=$(oc get svc -l app.kubernetes.io/name=kafka-connect -o json | jq -r '.items[] | .metadata.name')
 export CONNECTOR=inventory-connector
