@@ -180,6 +180,16 @@ oc exec -i my-cluster-kafka-0 -- curl -X GET \
     http://$DEBEZIUM_CONNECT_SVC:8083/connectors/$CONNECTOR
 ----
 
+=== Check connector status:
+
+[source, shell,indent=0]
+----
+oc exec -i my-cluster-kafka-0 -- curl -X GET \
+    -H "Accept:application/json" \
+    -H "Content-Type:application/json" \
+    http://$DEBEZIUM_CONNECT_SVC:8083/connectors/$CONNECTOR/status
+----
+
 === Update connector
 
 [source, yaml,indent=0]
@@ -211,16 +221,6 @@ oc exec -i my-cluster-kafka-0 -- curl -X DELETE \
     -H "Accept:application/json" \
     -H "Content-Type:application/json" \
     http://$DEBEZIUM_CONNECT_SVC:8083/connectors/$CONNECTOR
-----
-
-=== Check connector status:
-
-[source, bash,indent=0]
-----
-oc exec -i my-cluster-kafka-0 -- curl -X GET \
-    -H "Accept:application/json" \
-    -H "Content-Type:application/json" \
-    http://$DEBEZIUM_CONNECT_SVC:8083/connectors/$CONNECTOR/status
 ----
 
 === Get all connectors:
