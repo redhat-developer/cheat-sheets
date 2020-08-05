@@ -99,6 +99,26 @@ export DEBEZIUM_CONNECT_SVC=my-connect-cluster-connect-api
 export CONNECTOR=inventory-connector
 ----
 
+=== check the available connector plugins:
+
+[source, shell,indent=0]
+----
+oc exec -i my-cluster-kafka-0 -- curl -X GET \
+    -H "Accept:application/json" \
+    -H "Content-Type:application/json" \
+    http://$DEBEZIUM_CONNECT_SVC:8083/connector-plugins
+----
+
+=== Get all connectors:
+
+[source, bash,indent=0]
+----
+oc exec -i my-cluster-kafka-0 -- curl -X GET \
+    -H "Accept:application/json" \
+    -H "Content-Type:application/json" \
+    http://$DEBEZIUM_CONNECT_SVC:8083/connectors
+----
+
 === Create Debezium Connector
 
 ** Using RESTful API
@@ -169,26 +189,6 @@ Check that the resource was created:
 `oc get kctr/inventory-connector -o yaml | yq read - status`::
 Check the status of the Debezium Connector from the resource
 ====
-
-=== check the available connector plugins:
-
-[source, shell,indent=0]
-----
-oc exec -i my-cluster-kafka-0 -- curl -X GET \
-    -H "Accept:application/json" \
-    -H "Content-Type:application/json" \
-    http://$DEBEZIUM_CONNECT_SVC:8083/connector-plugins
-----
-
-=== Get all connectors:
-
-[source, bash,indent=0]
-----
-oc exec -i my-cluster-kafka-0 -- curl -X GET \
-    -H "Accept:application/json" \
-    -H "Content-Type:application/json" \
-    http://$DEBEZIUM_CONNECT_SVC:8083/connectors
-----
 
 === Get connector configuration
 
