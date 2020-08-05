@@ -249,12 +249,14 @@ Change the log level to trace of `io.debezium` as follows:
 
 [source, shell,indent=0]
 ----
-oc exec -it my-connect-cluster-connect-2-xxxxx -- curl -s -X PUT -H "Content-Type:application/json"  http://localhost:8083/admin/loggers/io.debezium -d '{"level": "TRACE"}'
+export KAFKA_CONNECT_POD=my-connect-cluster-connect-2-hns52
+oc exec -it $KAFKA_CONNECT_POD -- curl -s -X PUT -H "Content-Type:application/json"  http://localhost:8083/admin/loggers/io.debezium -d '{"level": "TRACE"}'
 ----
 
 Revert the log level back to `INFO` as follows:
 
 [source, shell,indent=0]
 ----
-oc exec -it my-connect-cluster-connect-2-xxxxx -- curl -s -X PUT -H "Content-Type:application/json"  http://localhost:8083/admin/loggers/io.debezium -d '{"level": "INFO"}'
+export KAFKA_CONNECT_POD=my-connect-cluster-connect-2-hns52
+oc exec -it $KAFKA_CONNECT_POD -- curl -s -X PUT -H "Content-Type:application/json"  http://localhost:8083/admin/loggers/io.debezium -d '{"level": "INFO"}'
 ----
