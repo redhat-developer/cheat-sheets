@@ -170,17 +170,17 @@ Check that the resource was created:
 Check the status of the Debezium Connector from the resource
 ====
 
-=== Get Connector Details
+=== Get connector configuration
 
 [source, bash,indent=0]
 ----
 oc exec -i my-cluster-kafka-0 -- curl -X GET \
     -H "Accept:application/json" \
     -H "Content-Type:application/json" \
-    http://$DEBEZIUM_CONNECT_SVC:8083/connectors
+    http://$DEBEZIUM_CONNECT_SVC:8083/connectors/$CONNECTOR
 ----
 
-=== Update Connector
+=== Update connector
 
 [source, yaml,indent=0]
 ----
