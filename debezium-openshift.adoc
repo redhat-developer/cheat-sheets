@@ -294,6 +294,13 @@ oc exec -i my-cluster-kafka-0 -- curl -X GET \
     http://$DEBEZIUM_CONNECT_SVC:8083/connectors/$CONNECTOR/status
 ----
 
+[source,json,subs="attributes+"]
+----
+HTTP/1.1 200 OK
+Accept:application/json
+{"name":"inventory-connector","connector":{"state":"RUNNING","worker_id":"10.131.0.49:8083"},"tasks":[{"id":0,"state":"RUNNING","worker_id":"10.131.0.49:8083"}],"type":"source"}
+----
+
 === Update connector
 
 [cols="35,65"]
@@ -341,7 +348,12 @@ oc exec -i my-cluster-kafka-0 -- curl -X POST \
     -H "Accept:application/json" \
     -H "Content-Type:application/json" \
     http://$DEBEZIUM_CONNECT_SVC:8083/connectors/$CONNECTOR/restart
-EOF
+----
+
+[source,json,subs="attributes+"]
+----
+HTTP/1.1 204 No Content
+Accept:application/json
 ----
 
 === Pause connector
@@ -360,8 +372,14 @@ oc exec -i my-cluster-kafka-0 -- curl -X PUT \
     -H "Accept:application/json" \
     -H "Content-Type:application/json" \
     http://$DEBEZIUM_CONNECT_SVC:8083/connectors/$CONNECTOR/pause
-EOF
 ----
+
+[source,http,subs="attributes+"]
+----
+HTTP/1.1 202 Accepted
+Accept:application/json
+----
+
 
 === Resume a paused connector
 
@@ -379,9 +397,13 @@ oc exec -i my-cluster-kafka-0 -- curl -X PUT \
     -H "Accept:application/json" \
     -H "Content-Type:application/json" \
     http://$DEBEZIUM_CONNECT_SVC:8083/connectors/$CONNECTOR/resume
-EOF
 ----
 
+[source,http,subs="attributes+"]
+----
+HTTP/1.1 202 Accepted
+Accept:application/json
+----
 
 === Delete a connector
 
@@ -399,6 +421,12 @@ oc exec -i my-cluster-kafka-0 -- curl -X DELETE \
     -H "Accept:application/json" \
     -H "Content-Type:application/json" \
     http://$DEBEZIUM_CONNECT_SVC:8083/connectors/$CONNECTOR
+----
+
+[source,http,subs="attributes+"]
+----
+HTTP/1.1 204 No Content
+Accept:application/json
 ----
 
 == Logs
