@@ -133,19 +133,19 @@ Accept:application/json
 
 |===
 
-[source,json,subs="attributes+"]
-----
-HTTP/1.1 200 OK
-Accept:application/json
-["inventory-connector"]
-----
-
 [source, bash,indent=0]
 ----
 oc exec -i my-cluster-kafka-0 -- curl -X GET \
     -H "Accept:application/json" \
     -H "Content-Type:application/json" \
     http://$DEBEZIUM_CONNECT_SVC:8083/connectors
+----
+
+[source,json,subs="attributes+"]
+----
+HTTP/1.1 200 OK
+Accept:application/json
+["inventory-connector"]
 ----
 
 === Create Debezium Connector
