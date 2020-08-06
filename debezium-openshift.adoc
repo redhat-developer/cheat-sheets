@@ -108,8 +108,8 @@ export CONNECTOR=inventory-connector
 
 |===
 
-. Example
-.. request:
+* Example
+** request:
 [source, shell,indent=0]
 ----
 oc exec -i my-cluster-kafka-0 -- curl -X GET \
@@ -118,7 +118,7 @@ oc exec -i my-cluster-kafka-0 -- curl -X GET \
     http://$DEBEZIUM_CONNECT_SVC:8083/connector-plugins
 ----
 
-.. response:
+** response:
 [source,json,subs="attributes+"]
 ----
 HTTP/1.1 200 OK
