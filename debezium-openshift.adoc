@@ -298,6 +298,64 @@ oc exec -i my-cluster-kafka-0 -- curl -i -X PUT -H "Accept:application/json" -H 
 EOF
 ----
 
+=== Restart connector
+
+[cols="35,65"]
+|===
+
+|`POST /connectors/(string:name)/restart`
+|Restart the connector.
+
+|===
+
+[source, shell,indent=0]
+----
+oc exec -i my-cluster-kafka-0 -- curl -X POST \
+    -H "Accept:application/json" \
+    -H "Content-Type:application/json" \
+    http://$DEBEZIUM_CONNECT_SVC:8083/connectors/$CONNECTOR/restart
+EOF
+----
+
+=== Pause connector
+
+[cols="35,65"]
+|===
+
+|`PUT /connectors/(string:name)/pause`
+|Pause the connector and its tasks.
+
+|===
+
+[source, shell,indent=0]
+----
+oc exec -i my-cluster-kafka-0 -- curl -X PUT \
+    -H "Accept:application/json" \
+    -H "Content-Type:application/json" \
+    http://$DEBEZIUM_CONNECT_SVC:8083/connectors/$CONNECTOR/pause
+EOF
+----
+
+=== Resume a paused connector
+
+[cols="35,65"]
+|===
+
+|`PUT /connectors/(string:name)/resume`
+|Resume a paused connector or do nothing if the connector is not paused.
+
+|===
+
+[source, shell,indent=0]
+----
+oc exec -i my-cluster-kafka-0 -- curl -X PUT \
+    -H "Accept:application/json" \
+    -H "Content-Type:application/json" \
+    http://$DEBEZIUM_CONNECT_SVC:8083/connectors/$CONNECTOR/resume
+EOF
+----
+
+
 === Delete a connector
 
 [cols="35,65"]
