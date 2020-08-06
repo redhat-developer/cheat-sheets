@@ -135,6 +135,7 @@ Accept:application/json
 
 |===
 
+** request:
 [source, bash,indent=0]
 ----
 oc exec -i my-cluster-kafka-0 -- curl -X GET \
@@ -143,6 +144,7 @@ oc exec -i my-cluster-kafka-0 -- curl -X GET \
     http://$DEBEZIUM_CONNECT_SVC:8083/connectors
 ----
 
+** response:
 [source,json,subs="attributes+"]
 ----
 HTTP/1.1 200 OK
@@ -162,6 +164,7 @@ Accept:application/json
 
 |===
 
+** request:
 [source, yaml,indent=0]
 ----
 oc exec -i my-cluster-kafka-0 -- curl -X POST \
@@ -187,6 +190,7 @@ oc exec -i my-cluster-kafka-0 -- curl -X POST \
 EOF
 ----
 
+** response:
 [source,json,subs="attributes+"]
 ----
 HTTP/1.1 201 Created
@@ -252,6 +256,7 @@ delete the Debezium connector `CR`
 
 |===
 
+** request:
 [source, shell,indent=0]
 ----
 oc exec -i my-cluster-kafka-0 -- curl -X GET \
@@ -259,6 +264,8 @@ oc exec -i my-cluster-kafka-0 -- curl -X GET \
     -H "Content-Type:application/json" \
     http://$DEBEZIUM_CONNECT_SVC:8083/connectors/$CONNECTOR
 ----
+
+** response:
 
 === Get connector configuration
 
@@ -270,6 +277,7 @@ oc exec -i my-cluster-kafka-0 -- curl -X GET \
 
 |===
 
+** request:
 [source, shell,indent=0]
 ----
 oc exec -i my-cluster-kafka-0 -- curl -X GET \
@@ -278,6 +286,7 @@ oc exec -i my-cluster-kafka-0 -- curl -X GET \
     http://$DEBEZIUM_CONNECT_SVC:8083/connectors/$CONNECTOR/config
 ----
 
+** response:
 [source,json,subs="attributes+"]
 ----
 HTTP/1.1 200 OK
@@ -295,6 +304,7 @@ Accept:application/json
 
 |===
 
+** request:
 [source, shell,indent=0]
 ----
 oc exec -i my-cluster-kafka-0 -- curl -X GET \
@@ -303,6 +313,7 @@ oc exec -i my-cluster-kafka-0 -- curl -X GET \
     http://$DEBEZIUM_CONNECT_SVC:8083/connectors/$CONNECTOR/status
 ----
 
+** response:
 [source,json,subs="attributes+"]
 ----
 HTTP/1.1 200 OK
@@ -320,6 +331,7 @@ Accept:application/json
 
 |===
 
+** request:
 [source, yaml,indent=0]
 ----
 oc exec -i my-cluster-kafka-0 -- curl -i -X PUT -H "Accept:application/json" -H "Content-Type:application/json" http://$DEBEZIUM_CONNECT_SVC:8083/connectors/$CONNECTOR/config/ -d @- <<'EOF'
@@ -341,6 +353,7 @@ oc exec -i my-cluster-kafka-0 -- curl -i -X PUT -H "Accept:application/json" -H 
 EOF
 ----
 
+** response:
 === Restart connector
 
 [cols="35,65"]
@@ -351,6 +364,7 @@ EOF
 
 |===
 
+** request:
 [source, shell,indent=0]
 ----
 oc exec -i my-cluster-kafka-0 -- curl -X POST \
@@ -359,6 +373,7 @@ oc exec -i my-cluster-kafka-0 -- curl -X POST \
     http://$DEBEZIUM_CONNECT_SVC:8083/connectors/$CONNECTOR/restart
 ----
 
+** response:
 [source,json,subs="attributes+"]
 ----
 HTTP/1.1 204 No Content
@@ -375,6 +390,7 @@ Accept:application/json
 
 |===
 
+** request:
 [source, shell,indent=0]
 ----
 oc exec -i my-cluster-kafka-0 -- curl -X PUT \
@@ -383,6 +399,7 @@ oc exec -i my-cluster-kafka-0 -- curl -X PUT \
     http://$DEBEZIUM_CONNECT_SVC:8083/connectors/$CONNECTOR/pause
 ----
 
+** response:
 [source,http,subs="attributes+"]
 ----
 HTTP/1.1 202 Accepted
@@ -400,6 +417,7 @@ Accept:application/json
 
 |===
 
+** request:
 [source, shell,indent=0]
 ----
 oc exec -i my-cluster-kafka-0 -- curl -X PUT \
@@ -408,6 +426,7 @@ oc exec -i my-cluster-kafka-0 -- curl -X PUT \
     http://$DEBEZIUM_CONNECT_SVC:8083/connectors/$CONNECTOR/resume
 ----
 
+** response:
 [source,http,subs="attributes+"]
 ----
 HTTP/1.1 202 Accepted
@@ -424,6 +443,7 @@ Accept:application/json
 
 |===
 
+** request:
 [source, shell,indent=0]
 ----
 oc exec -i my-cluster-kafka-0 -- curl -X DELETE \
@@ -432,6 +452,7 @@ oc exec -i my-cluster-kafka-0 -- curl -X DELETE \
     http://$DEBEZIUM_CONNECT_SVC:8083/connectors/$CONNECTOR
 ----
 
+** response:
 [source,http,subs="attributes+"]
 ----
 HTTP/1.1 204 No Content
