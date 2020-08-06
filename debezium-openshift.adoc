@@ -185,6 +185,13 @@ oc exec -i my-cluster-kafka-0 -- curl -X POST \
 EOF
 ----
 
+[source,json,subs="attributes+"]
+----
+HTTP/1.1 201 Created
+Accept:application/json
+{"name":"inventory-connector","config":{"connector.class":"io.debezium.connector.mysql.MySqlConnector","tasks.max":"1","database.hostname":"mysql","database.port":"3306","database.user":"debezium","database.password":"dbz","database.server.id":"184054","database.server.name":"dbserver","database.whitelist":"inventory","database.history.kafka.bootstrap.servers":"my-cluster-kafka-bootstrap:9092","database.history.kafka.topic":"schema-changes.inventory","name":"inventory-connector"},"tasks":[{"connector":"inventory-connector","task":0}],"type":"source"}
+----
+
 ** Using `CR` (Custom Resource)
 
 If `use-connector-resources` is enabled for your Kafka Connect resource, you can create the connector instance by creating a specific custom resource:
