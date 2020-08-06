@@ -100,6 +100,13 @@ export CONNECTOR=inventory-connector
 ----
 
 === Check the available connector plugins:
+[cols="35,65"]
+|===
+
+|`GET /connector-plugins`
+|check the available connector plugins
+
+|===
 
 [source, shell,indent=0]
 ----
