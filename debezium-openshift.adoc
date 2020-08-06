@@ -116,7 +116,7 @@ oc exec -i my-cluster-kafka-0 -- curl -X GET \
     http://$DEBEZIUM_CONNECT_SVC:8083/connector-plugins
 ----
 
-[source, json,indent=0]
+[source, json,subs="attributes+"]
 ----
 HTTP/1.1 200 OK
 Accept:application/json
