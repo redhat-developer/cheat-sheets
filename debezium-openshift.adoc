@@ -269,6 +269,11 @@ oc exec -i my-cluster-kafka-0 -- curl -X GET \
     http://$DEBEZIUM_CONNECT_SVC:8083/connectors/$CONNECTOR/config
 ----
 
+[source,json,subs="attributes+"]
+----
+{"connector.class":"io.debezium.connector.mysql.MySqlConnector","database.user":"debezium","database.server.id":"184054","database.hostname":"mysql","tasks.max":"1","database.history.kafka.bootstrap.servers":"my-cluster-kafka-bootstrap:9092","database.history.kafka.topic":"schema-changes.inventory","database.password":"dbz","name":"inventory-connector","database.server.name":"dbserver","database.whitelist":"inventory","database.port":"3306"}
+----
+
 === Check connector status
 
 [cols="35,65"]
