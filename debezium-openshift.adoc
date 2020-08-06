@@ -116,11 +116,11 @@ oc exec -i my-cluster-kafka-0 -- curl -X GET \
     http://$DEBEZIUM_CONNECT_SVC:8083/connector-plugins
 ----
 
-[source, json,subs="attributes+"]
+[source,json,subs="attributes+"]
 ----
 HTTP/1.1 200 OK
 Accept:application/json
-[{"class":"io.debezium.connector.mongodb.MongoDbConnector","type":"source","version":"1.2.0.Final"},{"class":"io.debezium.connector.mysql.MySqlConnector","type":"source","version":"1.2.0.Final"},{"class":"io.debezium.connector.postgresql.PostgresConnector","type":"source","version":"1.2.0.Final"},{"class":"org.apache.kafka.connect.file.FileStreamSinkConnector","type":"sink","version":"2.5.0"},{"class":"org.apache.kafka.connect.file.FileStreamSourceConnector","type":"source","version":"2.5.0"},{"class":"org.apache.kafka.connect.mirror.MirrorCheckpointConnector","type":"source","version":"1"},{"class":"org.apache.kafka.connect.mirror.MirrorHeartbeatConnector","type":"source","version":"1"},{"class":"org.apache.kafka.connect.mirror.MirrorSourceConnector","type":"source","version":"1"}]Content-Type:application/json
+[{"class":"io.debezium.connector.mongodb.MongoDbConnector","type":"source","version":"1.2.0.Final"},{"class":"io.debezium.connector.mysql.MySqlConnector","type":"source","version":"1.2.0.Final"},{"class":"io.debezium.connector.postgresql.PostgresConnector","type":"source","version":"1.2.0.Final"},{"class":"org.apache.kafka.connect.file.FileStreamSinkConnector","type":"sink","version":"2.5.0"},{"class":"org.apache.kafka.connect.file.FileStreamSourceConnector","type":"source","version":"2.5.0"},{"class":"org.apache.kafka.connect.mirror.MirrorCheckpointConnector","type":"source","version":"1"},{"class":"org.apache.kafka.connect.mirror.MirrorHeartbeatConnector","type":"source","version":"1"},{"class":"org.apache.kafka.connect.mirror.MirrorSourceConnector","type":"source","version":"1"}]
 ----
 
 === Get all connectors:
