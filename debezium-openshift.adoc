@@ -333,6 +333,14 @@ EOF
 ----
 
 ** response:
+[source,json,subs="attributes+"]
+----
+HTTP/1.1 200 OK
+Accept:application/json
+{"name":"inventory-connector","config":{"connector.class":"io.debezium.connector.mysql.MySqlConnector","tasks.max":"1","database.hostname":"mysql","database.port":"3306","database.user":"debezium","database.password":"dbz","database.server.id":"184054","database.server.name":"dbserver","database.whitelist":"inventory","database.history.kafka.bootstrap.servers":"my-cluster-kafka-bootstrap:9092","database.history.kafka.topic":"schema-changes.inventory","include.schema.changes":"false","name":"inventory-connector"},"tasks":[{"connector":ta not shown]
+"inventory-connector","task":0}],"type":"source"}
+----
+
 === Restart connector
 
 [cols="35,65"]
