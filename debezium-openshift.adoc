@@ -118,6 +118,14 @@ oc exec -i my-cluster-kafka-0 -- curl -X GET \
 
 === Get all connectors:
 
+[cols="35,65"]
+|===
+
+|`GET /connectors`
+|Get a list of active connectors
+
+|===
+
 [source, bash,indent=0]
 ----
 oc exec -i my-cluster-kafka-0 -- curl -X GET \
@@ -129,6 +137,14 @@ oc exec -i my-cluster-kafka-0 -- curl -X GET \
 === Create Debezium Connector
 
 ** Using RESTful API
+
+[cols="35,65"]
+|===
+
+|`POST /connectors`
+|Create a new Debezium connector
+
+|===
 
 [source, yaml,indent=0]
 ----
@@ -197,7 +213,15 @@ Check that the resource was created
 Check the status of the Debezium Connector from the resource
 ====
 
-=== Get connector configuration
+=== Get connector information
+
+[cols="35,65"]
+|===
+
+|`GET /connectors/(string:name)`
+|Get information about the connector.
+
+|===
 
 [source, shell,indent=0]
 ----
@@ -207,7 +231,33 @@ oc exec -i my-cluster-kafka-0 -- curl -X GET \
     http://$DEBEZIUM_CONNECT_SVC:8083/connectors/$CONNECTOR
 ----
 
+=== Get connector configuration
+
+[cols="35,65"]
+|===
+
+|`GET /connectors/(string:name)/config`
+|Get the configuration for the connector.
+
+|===
+
+[source, shell,indent=0]
+----
+oc exec -i my-cluster-kafka-0 -- curl -X GET \
+    -H "Accept:application/json" \
+    -H "Content-Type:application/json" \
+    http://$DEBEZIUM_CONNECT_SVC:8083/connectors/$CONNECTOR/config
+----
+
 === Check connector status
+
+[cols="35,65"]
+|===
+
+|`GET /connectors/(string:name)/status`
+|Get current status of the connector.
+
+|===
 
 [source, shell,indent=0]
 ----
@@ -218,6 +268,14 @@ oc exec -i my-cluster-kafka-0 -- curl -X GET \
 ----
 
 === Update connector
+
+[cols="35,65"]
+|===
+
+|`PUT /connectors/(string:name)/config`
+|Create a new connector using the given configuration, or update the configuration for an existing connector..
+
+|===
 
 [source, yaml,indent=0]
 ----
@@ -240,7 +298,15 @@ oc exec -i my-cluster-kafka-0 -- curl -i -X PUT -H "Accept:application/json" -H 
 EOF
 ----
 
-=== Delete Connector
+=== Delete a connector
+
+[cols="35,65"]
+|===
+
+|`DELETE /connectors/(string:name)/`
+|Delete a connector.
+
+|===
 
 [source, shell,indent=0]
 ----
