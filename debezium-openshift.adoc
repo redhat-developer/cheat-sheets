@@ -246,27 +246,6 @@ Update the Debezium connector `CR`
 delete the Debezium connector `CR`
 ====
 
-=== Get connector information
-
-[cols="35,65"]
-|===
-
-|`GET /connectors/(string:name)`
-|Get information about the connector.
-
-|===
-
-** request:
-[source, shell,indent=0]
-----
-oc exec -i my-cluster-kafka-0 -- curl -X GET \
-    -H "Accept:application/json" \
-    -H "Content-Type:application/json" \
-    http://$DEBEZIUM_CONNECT_SVC:8083/connectors/$CONNECTOR
-----
-
-** response:
-
 === Get connector configuration
 
 [cols="35,65"]
