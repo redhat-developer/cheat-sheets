@@ -211,6 +211,12 @@ Check that the resource was created
 
 `oc get kctr/inventory-connector -o yaml | yq read - status`::
 Check the status of the Debezium Connector from the resource
+
+`oc apply kctr/inventory-connector` or `oc edit kctr/inventory-connector`::
+Update the Debezium connector `CR`
+
+`oc delete kctr/inventory-connector`::
+delete the Debezium connector `CR`
 ====
 
 === Get connector information
