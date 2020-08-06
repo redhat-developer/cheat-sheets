@@ -108,7 +108,6 @@ export CONNECTOR=inventory-connector
 
 |===
 
-* Example
 ** request:
 [source, shell,indent=0]
 ----
