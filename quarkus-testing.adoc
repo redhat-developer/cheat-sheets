@@ -42,7 +42,7 @@ public class GreetingResourceTest {
 ----
 
 By default test HTTP/S port is `8081` and `8444`.
-They can be overriden by setting the next properties:
+They can be overridden by setting the next properties:
 
 [source, properties]
 ----
