@@ -1,0 +1,71 @@
+= Buildah
+:experimental: true
+:product-name:
+
+This cheat sheet covers the buildah command set for the buildah tool.
+
+== Queries
+
+`buildah containers`:: list all working containers
+`buildah images`:: list all local images
+`buildah inspect _container-id_`:: displays details about a container
+`buildah inspect --type image _image-id_`:: displays details about an image
+
+== Creating Containers
+
+`buildah from _base_`:: creates a new working container from a base image; the ID of the container is returned from this call
+`buildah from scratch`:: creates a new scratch image with no base; the name of the container is returned from this call (see "Scratch Containers" below for more information)
+
+== Editing Containers
+
+`buildah run _container-id_ -- _commands_`:: runs the commands after the `--` inside of the specified container (similar in concept to the `RUN` command in a Dockerfile)
+`buildah copy _container-id_ _local-file_ _destination_`:: copies a file to the specified destination within the given container
+`buildah config _flags_ _container-id_`:: modifies configuration values that will be saved to a container's image when it is created
+
+Some example flags are as follows (the full list of configuration options can be found by running `buildah config -h`):
+
+[cols="35,65"]
+|===
+
+|`--cmd _command-string_`
+|sets the default command run for containers created from this image
+
+|`--entrypoint _entrypoint-string_`
+|sets the entry point for containers created from this image
+
+|`--port _port_`
+|adds a port to be exposed by this image's containers
+|===
+
+`buildah commit _container-id_ _image-name_`:: creates a new image based on the current state of the provided container
+
+== Deleting Containers
+
+`buildah rm _container-id_`:: deletes the given container; multiple container IDs may be specified, separated by spaces
+`buildah rm --all`:: delete all containers
+
+== Deleting Images
+
+`buildah rmi _image-id_`:: deletes the given image
+`buildah rmi --all`:: deletes all images
+`buildah rmi --prune`:: prunes dangling images
+
+== Scratch Containers
+Once a scatch container has been initialized, the commands under "Editing Containers" can also be used to manipulate them. The following commands are used to establish the set of required packages on the scratch image.
+
+`buildah from scratch`:: creates a new scratch image with no base; the name of the container is returned from this call
+`buildah mount _container-id_`:: mounts a scratch image to a directory on the local system, returning the full path to the directory
+`buildah unshare buildah mount _container-id_`:: mounts a scratch image for non-root users
+`dnf install --installroot _scratch-mount-dir_ _package-list_ --setopt install_weak_deps=false -y`:: example call to the dnf package manager to install packages to the directory to which the scratch container is mounted
+`buildah unmount _container-id_`:: unmount a previously mounted container
+`buildah commit _container-id_ _image-name_`:: creates a new image based on the current state of the provided container, including the changes made while the container was mounted
+
+== Using Dockerfiles
+
+`buildah bud -t _image-tag_`:: creates an image from a Dockerfile in the current directory (`bud` is short for `build-using-dockerfile` which may also be used)
+
+== Interacting with Registries
+
+`buildah login _registry_`:: logs into the specified registry, such as `docker.io` or `quay.io`
+`buildah push _image-tag_`:: pushes the specified image to a remote repository
+`buildah tag _existing-image-tag_ _new-image-tag_`:: create an additional image tag on an existing image
