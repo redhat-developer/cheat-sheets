@@ -51,7 +51,7 @@ Some example flags are as follows (the full list of configuration options can be
 `buildah rmi --prune`:: prunes dangling images
 
 == Scratch Containers
-Once a scatch container has been initialized, the commands under "Editing Containers" can also be used to manipulate them. The following commands are used to establish the set of required packages on the scratch image.
+Once a scratch container has been initialized, the commands under "Editing Containers" can also be used to manipulate them. The following commands are used to establish the set of required packages on the scratch image.
 
 `buildah from scratch`:: creates a new scratch image with no base; the name of the container is returned from this call
 `buildah mount _container-id_`:: mounts a scratch image to a directory on the local system, returning the full path to the directory
