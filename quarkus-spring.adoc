@@ -43,7 +43,7 @@ public class NoOpSingleStringFunction
 }
 ----
 
-Also as a service and injecting configuration properties from the `application.properties` file.
+Also as a service and injecting configuration properties from the `application.properties` file:
 
 [source, java]
 ----
@@ -59,7 +59,7 @@ public class MessageProducer {
 }
 ----
 
-And you can inject using `Autowired` or constructor in a component and in a JAX-RS resource.
+And you can inject using `Autowired` or the constructor in a component and in a JAX-RS resource.
 
 [source, java]
 ----
@@ -89,7 +89,7 @@ public class GreeterBean {
   -Dextensions="quarkus-spring-web"
 ----
 
-It supports the REST related features.
+It supports the REST-related features.
 
 [source, java]
 ----
@@ -155,7 +155,7 @@ example.anotherClass.value=true
   -Dextensions="spring-security"
 ----
 
-You need to choose a security extension to define user, roles, ... such as `openid-connect`, `oauth2`, `properties-file` or `security-jdbc`.
+You need to choose a security extension to define users or roles such as `openid-connect`, `oauth2`, `properties-file` or `security-jdbc`.
 Then you can use Spring Security annotations to protect classes or methods:
 
 [source, java]
@@ -402,25 +402,25 @@ Possible configuration options.
 Prefix is `quarkus.spring-cloud-config`.
 
 `uri`::
-Base URI where the Spring Cloud Config Server is available. (default: `localhost:8888`)
+Base URI where the Spring Cloud Config Server is available (default: `localhost:8888`)
 
 `username`::
-Username to be used if the Config Server has BASIC Auth enabled.
+Username to be used if the Config Server has BASIC Auth enabled
 
 `password`::
-Password to be used if the Config Server has BASIC Auth enabled.
+Password to be used if the Config Server has BASIC Auth enabled
 
 `enabled`::
-Enables read configuration from Spring Cloud Config Server. (default: `false`)
+Enables read configuration from Spring Cloud Config Server (default: `false`)
 
 `fail-fast`::
-True to not start application if cannot access to the server. (default: `false`)
+Set to True in order to not start application if it cannot access the server (default: `false`)
 
 `connection-timeout`::
-The amount of time to wait when initially establishing a connection before giving up and timing out. (default: `10S`)
+The amount of time to wait when initially establishing a connection before giving up and timing out (default: `10S`)
 
 `read-timeout`::
-The amount of time to wait for a read on a socket before an exception is thrown. (default: `60S`)
+The amount of time to wait for a read on a socket before an exception is thrown (default: `60S`)
 
 `label`::
-The label to be used to pull remote configuration properties.
+The label to be used to pull remote configuration properties
