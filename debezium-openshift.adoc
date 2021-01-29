@@ -7,7 +7,7 @@ This cheat sheet covers how to deploy/create/run/update a Debezium Connector on 
 
 == What’s Debezium ?
 
-https://debezium.io/[Debezium] is an distributed open-source platform for change data capture. Start it up, point it at your databases, and your apps can start responding to all of the inserts, updates, and deletes that other apps commit to your databases. 
+https://debezium.io/[Debezium] is a distributed open-source platform for change data capture. Start it up, point it at your databases, and your apps can start responding to all of the inserts, updates, and deletes that other apps commit to your databases. 
 Debezium is durable and fast, so your apps can respond quickly and never miss an event, even when things go wrong.
 
 image::debezium-architecture.png[I am the image alt text.]
@@ -16,7 +16,7 @@ image::debezium-architecture.png[I am the image alt text.]
 
 Debezium is based on Apache Kafka and Kafka Connect, and can be run on `Kubernetes` and `OpenShift` via the https://strimzi.io[Strimzi] project. `Strimzi` provides a set of operators and container images for running Kafka on Kubernetes and OpenShift. 
 
-==== Deploy Kafka & Kafka Connect
+=== Deploy Kafka & Kafka Connect
 
 [source, shell,indent=0]
 ----
@@ -29,7 +29,7 @@ oc apply -f https://github.com/strimzi/strimzi-kafka-operator/raw/0.19.0/example
 oc apply -f https://github.com/strimzi/strimzi-kafka-operator/raw/0.19.0/examples/connect/kafka-connect-s2i-single-node-kafka.yaml
 ----
 
-==== Extend Kafka Connect with Debezium Binaries: 
+=== Extend Kafka Connect with Debezium Binaries: 
 
 ** `Source-to-Image` (S2I):
 
