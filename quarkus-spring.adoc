@@ -376,7 +376,6 @@ void cronJob() {
 @Scheduled(cron = "{cron.expr}") 
 ----
 
-<<<
 == Spring Cloud Config Client
 
 [source, bash]
