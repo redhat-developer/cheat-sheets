@@ -1,0 +1,45 @@
+= Node.js - Command Line Flags
+
+This cheat sheet covers the most popular/used node.js command line flags.
+
+== Running your code
+
+`-v, --version`:: Prints the current version of node.js you use
+`-e, --eval` :: Evaluates the current argument as JavaScript
+`-c, --check` :: Checks the syntax of a script without executing it
+`-i, --interactive` :: Opens the node.js REPL (Read-Eval-Print-Loop)
+`-r, --require` :: Pre-loads a specific module at start-up
+`--no-deprecation` :: Silences the deprecation warnings
+`--no-warnings` :: Silences all warnings (including deprecations)
+`NODE_OPTIONS=` :: Environment variable that you can use to set command line options
+
+== Code Hygiene
+
+`--pending-deprecation` :: Emit pending deprecation warnings
+`--trace-deprecation` :: Prints the stack trace for deprecations
+`--throw-deprecation` :: Throws error on deprecation
+`--trace-warnings` :: Prints the stack trace for warnings
+
+== Initial problem investigation
+
+`--report-on-signal` :: Generate node report on signal
+`--report-on-fatalerror` :: Generate node report on fatal error
+`--report-uncaught-exception` :: Generate diagnostic report on uncaught exceptions
+
+== Controlling/investigating memory use
+
+`--max-old-space-size` :: Set the size of the heap
+`--trace_gc` :: Turn on gc logging
+`--heap-prof` :: Enable heap profiling
+`--heapsnapshot-signal=signal` :: Generate heap snapshot on specified signal
+
+== CPU performance investigation
+
+`--prof` :: Generate V8 profiler output.
+`--prof-process` :: Process V8 profiler output generated using --prof
+`--cpu-prof` :: Start the V8 CPU profiler on start up, and write the CPU profile to disk before exit
+
+== Debugging
+
+`--inspect-brk[=[host:]port]` :: Activate inspector on host:port and break at start of user script
+`--inspect[=[host:]port]` :: Activate inspector on host:port (default: 127.0.0.1:9229)
