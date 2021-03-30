@@ -16,7 +16,7 @@ IMPORTANT: Please note that the Spring support in Quarkus does not start a Sprin
   -Dextensions="quarkus-spring-di"
 ----
 
-[soure, java]
+[source, java]
 ----
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
