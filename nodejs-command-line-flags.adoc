@@ -15,31 +15,31 @@ This cheat sheet covers the most popular/used node.js command line flags.
 
 == Code Hygiene
 
-`--pending-deprecation` :: Emit pending deprecation warnings
+`--pending-deprecation` :: Emits pending deprecation warnings
 `--trace-deprecation` :: Prints the stack trace for deprecations
 `--throw-deprecation` :: Throws error on deprecation
 `--trace-warnings` :: Prints the stack trace for warnings
 
 == Initial problem investigation
 
-`--report-on-signal` :: Generate node report on signal
-`--report-on-fatalerror` :: Generate node report on fatal error
-`--report-uncaught-exception` :: Generate diagnostic report on uncaught exceptions
+`--report-on-signal` :: Generates node report on signal
+`--report-on-fatalerror` :: Generates node report on fatal error
+`--report-uncaught-exception` :: Generates diagnostic report on uncaught exceptions
 
 == Controlling/investigating memory use
 
-`--max-old-space-size` :: Set the size of the heap
-`--trace_gc` :: Turn on gc logging
-`--heap-prof` :: Enable heap profiling
-`--heapsnapshot-signal=signal` :: Generate heap snapshot on specified signal
+`--max-old-space-size` :: Sets the size of the heap
+`--trace_gc` :: Turns on gc logging
+`--heap-prof` :: Enables heap profiling
+`--heapsnapshot-signal=signal` :: Generates heap snapshot on specified signal
 
 == CPU performance investigation
 
-`--prof` :: Generate V8 profiler output.
+`--prof` :: Generates V8 profiler output.
 `--prof-process` :: Process V8 profiler output generated using --prof
-`--cpu-prof` :: Start the V8 CPU profiler on start up, and write the CPU profile to disk before exit
+`--cpu-prof` :: Starts the V8 CPU profiler on start up, and write the CPU profile to disk before exit
 
 == Debugging
 
-`--inspect-brk[=[host:]port]` :: Activate inspector on host:port and break at start of user script
-`--inspect[=[host:]port]` :: Activate inspector on host:port (default: 127.0.0.1:9229)
+`--inspect-brk[=[host:]port]` :: Activates inspector on host:port and break at start of user script
+`--inspect[=[host:]port]` :: Activates inspector on host:port (default: 127.0.0.1:9229)
