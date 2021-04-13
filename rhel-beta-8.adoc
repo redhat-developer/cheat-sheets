@@ -35,7 +35,7 @@ The most basic tasks that you might need after the operating system has been ins
 
 `yum list installed`:: list all installed packages
 
-== Workng with containers
+== Working with containers
 
 To enable container management without the need for daemons, Red Hat has <<introduced, introduced>> a set of tools for your Linux container application development:
 
