@@ -1,0 +1,396 @@
+= Bash Shell
+:experimental: true
+:product-name:
+:version: 1.0.0
+
+This cheat sheet covers the most common statements to getting started with Bash scripting.
+
+== Bash script header
+
+[source, bash-shell, subs=attributes+]
+----
+#!/usr/bin/env bash
+
+echo "Hello World"
+----
+
+== Variables & Strings
+
+[source, bash-shell, subs=attributes+]
+----
+#!/usr/bin/env bash
+
+MSG="Hello World"
+
+echo "$MSG Alex" # Hello World Alex
+echo '$MSG Alex' # $MSG Alex
+----
+
+=== String Manipulation
+
+[source, bash-shell, subs=attributes+]
+----
+
+MSG="hello world"
+
+# Replace
+echo ${MSG/w/W} #  hello World
+echo ${MSG//[a-zA-Z]/X} #  XXXXX XXXXX
+
+
+#Substring
+echo ${MSG:0:5} # hello 
+
+echo ${MSG%world} # hello  
+echo ${MSG#hello} # world  
+
+#uppercase
+echo ${MSG^} # Hello world
+echo ${MSG^^} # HELLO WORLD
+
+MSG="HELLO WORLD"
+
+echo ${MSG,} # hELLO WORLD
+echo ${MSG,,} # hello world
+
+echo ${MSG:-val} # HELLO WORLD
+echo ${FOO:-val} # val
+----
+
+== Functions
+
+[source, bash-shell, subs=attributes+]
+----
+helloworld() {
+    echo "Number of arguments $#" # 2
+    echo "Hello World $1 from $2" # Hello World Alex from Bash
+}
+
+helloworld "Alex" "Bash"
+----
+
+=== Returning Values
+
+[source, bash-shell, subs=attributes+]
+----
+helloworld () {
+  return 46
+}
+
+helloworld
+echo $? # 46
+----
+
+Bash may only return the status code.
+To return strings, command substitution might do the trick:
+
+[source, bash-shell, subs=attributes+]
+----
+helloworld() {
+echo "My return string!"
+}
+ 
+msg=$(helloworld)
+echo "$msg"
+----
+
+== Collections
+
+=== Arrays
+
+[source, bash-shell, subs=attributes+]
+----
+names=('Alex' 'Ada' 'Alexandra')
+
+names+=('Soto') # Append
+unset names[3] # Removes element
+----
+
+[source, bash-shell, subs=attributes+]
+----
+echo ${names[0]} # Alex
+echo ${names[@]} # Alex Ada Alexandra 
+echo ${#names[@]} # 3
+----
+
+=== Maps
+
+[source, bash-shell, subs=attributes+]
+----
+declare -A score
+
+score[alex]="1"
+score[edson]="2"
+score[sebi]="3"
+
+unset score[alex]   # Delete alex entry
+----
+
+[source, bash-shell, subs=attributes+]
+----
+echo ${!score[@]}  # alex edson sebi
+echo ${score[@]}   # 2 1 3
+echo ${#score[@]}  # 3
+----
+
+== Conditionals
+
+[source, bash-shell, subs=attributes+]
+----
+if [[ $a -gt 4 ]]; then
+  echo "$a is greater than 4"
+elif [[ $a -lt 4 ]]; then
+  echo "$a less than 4"
+else
+  echo "$a is equal 4"
+fi
+----
+
+=== Numeric Conditions
+
+[cols="25,75"]
+|===
+a|`[[ NUM -eq NUM ]]`	
+|Equal
+
+a|`[[ NUM -ne NUM ]]`
+|Not equal
+
+a|`[[ NUM -lt NUM ]]`
+|Less than
+
+a|`[[ NUM -le NUM a]]`
+|Less than or equal
+
+a|`[[ NUM -gt NUM ]]`
+Greater than
+
+a|`[[ NUM -ge NUM ]]`
+Greater or equal than
+|===
+
+=== String Conditions
+
+[cols="25,75"]
+|===
+a|`[[ STRING == STRING ]]`	
+|Equal
+
+a|`[[ STRING != STRING ]]`	
+|Not Equal
+
+a|`[[ -z STRING ]]`	
+|Empty string
+
+a|`[[ -n STRING ]]`	
+|Not empty string
+
+a|`[[ STRING =~ STRING ]]`	
+|Regular expression
+|===
+
+=== File Conditions
+
+[cols="25,75"]
+|===
+
+a|`[[ -f FILE ]]`
+|File
+
+a|`[[ -d FILE ]]`
+|Directory
+
+a|`[[ -e FILE ]]`
+|Exists
+
+a|`[[ -r -w -x FILE ]]`	
+|Readable Writable Executable
+
+a|`[[ -h FILE ]]`
+|Symlink
+|===
+
+Boolean conditions:
+
+a|`[[ ! EXPR ]]`
+|Not
+
+a|`[[ BOOL && BOOL ]]`
+|And
+
+a|`[[ BOOL || BOOL ]]`
+|OR
+
+== Loops
+
+[source, bash-shell, subs=attributes+]
+----
+for ((i = 0 ; i < 10 ; i++)); do
+  echo "Hello World $i"
+done
+----
+
+=== Range
+
+[source, bash-shell, subs=attributes+]
+----
+for i in {1..5}; do
+    echo "Hello World $i"
+done
+----
+
+=== Collections
+
+[source, bash-shell, subs=attributes+]
+----
+for i in "${names[@]}"; do
+  echo "Hello $i"
+done
+----
+
+[source, bash-shell, subs=attributes+]
+----
+for key in "${!score[@]}"; do
+  echo $key
+done
+----
+
+[source, bash-shell, subs=attributes+]
+----
+for val in "${score[@]}"; do
+  echo $val
+done
+----
+
+=== Files
+
+[source, bash-shell, subs=attributes+]
+----
+for i in /tmp/*.txt; do
+  echo $i
+done
+----
+
+[source, bash-shell, subs=attributes+]
+----
+cat /tmp/hello.txt | while read line; do
+  echo $line
+done
+----
+
+=== While
+
+[source, bash-shell, subs=attributes+]
+----
+while true; do
+  echo "Hello World"
+done
+----
+
+== Executing commands
+
+Execute a command and check the exit status:
+
+[source, bash-shell, subs=attributes+]
+----
+cat /tmp/hello.txt 
+ 
+if [ $? -eq 0 ]
+then
+  echo "OK"
+else
+  echo "KO"
+fi
+----
+
+To get the output of a command, surround the call with "\`" character:
+
+[source, bash-shell, subs=attributes+]
+----
+lines=(`cat "/tmp/hello.txt"`)
+
+lines="$(cat "/tmp/hello.txt)"
+----
+
+== Useful snippets
+
+=== Getting the Script Directory
+
+[source, bash-shell, subs=attributes+]
+----
+DIR="${0%/*}"
+----
+
+==== Reading CLI Arguments:
+
+[source, bash-shell, subs=attributes+]
+----
+echo "$1 $2"
+
+#######
+
+execute.sh "Hello" "Alex"
+# Hello Alex
+----
+
+=== Print Output
+
+[source, bash-shell, subs=attributes+]
+----
+printf "\n\n######## Deploying ########\n"
+----
+
+=== Read Input
+
+[source, bash-shell, subs=attributes+]
+----
+echo -n "Enter name: "
+read ans
+echo $ans
+----
+
+=== Create File with Content
+
+[source, bash-shell, subs=attributes+]
+----
+echo "
+apiVersion: apiserver.config.k8s.io/v1
+kind: EncryptionConfiguration
+resources:
+  - resources:
+    - secrets
+    providers:
+    - aescbc:
+        keys:
+        - name: key1
+          secret: b6sjdRWAPhtacXo8mO1cfgVYWXzwuls3T3NQOo4TBhk= 
+    - identity: {}
+"  | tee /var/lib/minikube/certs/encryptionconfig.yaml
+----
+
+=== Subshell
+
+A shell script can itself launch subprocesses. These subshells let the script do parallel processing, in effect executing multiple subtasks simultaneously.
+
+[source, bash-shell, subs=attributes+]
+----
+(
+# Inside parentheses, and therefore a subshell . . .
+while [ 1 ]   # Endless loop.
+do
+  echo "Subshell"
+done
+)
+----
+
+Run the following command in a new terminal:
+
+[source, bash-shell, subs=attributes+]
+----
+ps -ef | grep execute.sh
+
+501  4286   641   0 11:17AM ttys007    0:00.00 /bin/bash ./execute.sh
+501  4287  4286   0 11:17AM ttys007    0:07.67 /bin/bash ./execute.sh
+----
+
+Two processes are started, and notice that the second one has as parent the first one `4286`.
