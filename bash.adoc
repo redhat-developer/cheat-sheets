@@ -1,16 +1,17 @@
-= Bash Shell
+= Bash Shell Scripting
 :experimental: true
 :product-name:
 :version: 1.0.0
 
-This cheat sheet covers the most common statements to getting started with Bash scripting.
+Bash is a version of the classic Unix shell with many enhancements. Bash is the default shell installed on GNU/Linux distributions and many other Unix-style systems. This cheat sheet covers some useful concepts in Bash scripting.
 
-== Bash script header
+If a command in the examples produces output, the output is shown on the same line, separated from the command by a hash or pound sign (+#+).
+
+== Bash Script Header
 
 [source, bash-shell, subs=attributes+]
 ----
 #!/usr/bin/env bash
-
 echo "Hello World"
 ----
 
@@ -19,9 +20,7 @@ echo "Hello World"
 [source, bash-shell, subs=attributes+]
 ----
 #!/usr/bin/env bash
-
 MSG="Hello World"
-
 echo "$MSG Alex" # Hello World Alex
 echo '$MSG Alex' # $MSG Alex
 ----
@@ -30,29 +29,21 @@ echo '$MSG Alex' # $MSG Alex
 
 [source, bash-shell, subs=attributes+]
 ----
-
 MSG="hello world"
-
 # Replace
 echo ${MSG/w/W} #  hello World
 echo ${MSG//[a-zA-Z]/X} #  XXXXX XXXXX
-
-
-#Substring
+# Substring
 echo ${MSG:0:5} # hello 
-
 echo ${MSG%world} # hello  
 echo ${MSG#hello} # world  
-
-#uppercase
+# Uppercase
 echo ${MSG^} # Hello world
 echo ${MSG^^} # HELLO WORLD
-
 MSG="HELLO WORLD"
-
 echo ${MSG,} # hELLO WORLD
 echo ${MSG,,} # hello world
-
+# Alternative
 echo ${MSG:-val} # HELLO WORLD
 echo ${FOO:-val} # val
 ----
@@ -65,7 +56,6 @@ helloworld() {
     echo "Number of arguments $#" # 2
     echo "Hello World $1 from $2" # Hello World Alex from Bash
 }
-
 helloworld "Alex" "Bash"
 ----
 
@@ -76,22 +66,20 @@ helloworld "Alex" "Bash"
 helloworld () {
   return 46
 }
-
 helloworld
 echo $? # 46
 ----
 
-Bash may only return the status code.
-To return strings, command substitution might do the trick:
+Bash can return only a status code. To return a string, use command substitution:
 
 [source, bash-shell, subs=attributes+]
 ----
 helloworld() {
-echo "My return string!"
+echo 'My return string!'
 }
  
 msg=$(helloworld)
-echo "$msg"
+echo $msg
 ----
 
 == Collections
@@ -101,8 +89,7 @@ echo "$msg"
 [source, bash-shell, subs=attributes+]
 ----
 names=('Alex' 'Ada' 'Alexandra')
-
-names+=('Soto') # Append
+names+=('Soto') # Appends element
 unset names[3] # Removes element
 ----
 
@@ -117,12 +104,10 @@ echo ${#names[@]} # 3
 
 [source, bash-shell, subs=attributes+]
 ----
-declare -A score
-
+declare -a score
 score[alex]="1"
 score[edson]="2"
 score[sebi]="3"
-
 unset score[alex]   # Delete alex entry
 ----
 
@@ -160,13 +145,13 @@ a|`[[ NUM -lt NUM ]]`
 |Less than
 
 a|`[[ NUM -le NUM a]]`
-|Less than or equal
+|Less than or equal to
 
 a|`[[ NUM -gt NUM ]]`
 Greater than
 
 a|`[[ NUM -ge NUM ]]`
-Greater or equal than
+Greater than or equal to
 |===
 
 === String Conditions
@@ -186,7 +171,7 @@ a|`[[ -n STRING ]]`
 |Not empty string
 
 a|`[[ STRING =~ STRING ]]`	
-|Regular expression
+|Regular expression match
 |===
 
 === File Conditions
@@ -195,19 +180,19 @@ a|`[[ STRING =~ STRING ]]`
 |===
 
 a|`[[ -f FILE ]]`
-|File
+|Is a file
 
 a|`[[ -d FILE ]]`
-|Directory
+|Is a directory
 
 a|`[[ -e FILE ]]`
 |Exists
 
 a|`[[ -r -w -x FILE ]]`	
-|Readable Writable Executable
+|Is readable, Writable, executable
 
 a|`[[ -h FILE ]]`
-|Symlink
+|Is symbolic link
 |===
 
 Boolean conditions:
@@ -241,12 +226,16 @@ done
 
 === Collections
 
+Print all elements from a plain array:
+
 [source, bash-shell, subs=attributes+]
 ----
 for i in "${names[@]}"; do
   echo "Hello $i"
 done
 ----
+
+Print keys and values of all elements from a key/value array:
 
 [source, bash-shell, subs=attributes+]
 ----
@@ -282,7 +271,8 @@ done
 
 [source, bash-shell, subs=attributes+]
 ----
-while true; do
+x=1;
+while [ $x -le 5 ]; do
   echo "Hello World"
 done
 ----
@@ -308,7 +298,6 @@ To get the output of a command, surround the call with "\`" character:
 [source, bash-shell, subs=attributes+]
 ----
 lines=(`cat "/tmp/hello.txt"`)
-
 lines="$(cat "/tmp/hello.txt)"
 ----
 
@@ -326,9 +315,7 @@ DIR="${0%/*}"
 [source, bash-shell, subs=attributes+]
 ----
 echo "$1 $2"
-
 #######
-
 execute.sh "Hello" "Alex"
 # Hello Alex
 ----
@@ -370,7 +357,7 @@ resources:
 
 === Subshell
 
-A shell script can itself launch subprocesses. These subshells let the script do parallel processing, in effect executing multiple subtasks simultaneously.
+A shell script can launch subshells. These subshells let the script do parallel processing, in effect executing multiple subtasks simultaneously.
 
 [source, bash-shell, subs=attributes+]
 ----
@@ -388,9 +375,8 @@ Run the following command in a new terminal:
 [source, bash-shell, subs=attributes+]
 ----
 ps -ef | grep execute.sh
-
 501  4286   641   0 11:17AM ttys007    0:00.00 /bin/bash ./execute.sh
 501  4287  4286   0 11:17AM ttys007    0:07.67 /bin/bash ./execute.sh
 ----
 
-Two processes are started, and notice that the second one has as parent the first one `4286`.
+Two processes are started. The first one (4286) as parent of the second.
