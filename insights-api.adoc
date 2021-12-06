@@ -1,0 +1,270 @@
+==== Red Hat Insights API
+
+===== By: Jerome Marc
+
+Red Hat Insights is a Software-as-a-Service offering that enables users to obtain actionable intelligence regarding their Red Hat Enterprise Linux environments, helping to identify and address operational and vulnerability risks before an issue results in downtime. This cheat sheet covers Red Hat Insights APIs available to obtain system details and findings, as well as to interact with specific Insights applications.
+
+This cheat sheet explains how to:
+
+* Authenticate with Insights API
+* Interact with the Inventory
+* Obtain findings identified by Insights
+* Work with various Insights applications
+* Generate and execute remediations for existing issues
+
+
+Red Hat Insights API
+
+. This cheat sheet covers the basic Insights APIs. All examples are performed on https://console.redhat.com/api/[+https://console.redhat.com/api/]+ using +v1+ endpoints. Please refer to https://console.redhat.com/docs/api-docs[https://console.redhat.com/docs/api-docs] for latest API specifications and deprecations. 
+
+*Authentication:*  +
+Insights API provides secure REST services over HTTPS endpoints. This protects authentication credentials in transit.
+
+* *Basic Authentication*
+	Users of the Insights REST API can authenticate by providing their username and password within an HTTP header for methods such as GET, POST, PATCH, and DELETE.
+
+Procedure
+
+. Concatenate the username and password with a colon. Note that the username is case-sensitive.
++admin:password+
+. Encode this username and password string in base64 encoding
++echo -n 'admin:password' | openssl base64+
+. Include the +<encoded_auth>+ from previous step in an HTTP Authorization: Basic header in your request. For example, the following header is used:
+Authorization: Basic <encoded_auth>
+
+* *Red Hat API Token* (recommended)
+Users of the Insights REST API can authenticate by providing a generated token using the https://access.redhat.com/management/api[Red Hat API Tokens] service.
+Procedure
+
+. Login to https://access.redhat.com/[Red Hat Customer Portal] with your username and password 
+. Generate an offline token using https://access.redhat.com/management/api[Red Hat API Tokens] by following the instructions
+. Generate an access token using the +<offline_token>+ from previous step
++curl https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token -d grant_type=refresh_token -d client_id=rhsm-api -d refresh_token=<offline_token>+
+
+. Include the generated +<access_token>+ from previous step in an HTTP Authorization: Bearer header in your request. For example, the following header is used:
+Authorization: Bearer <access_token>
+
+*Host **Inv**entory***:**
+
+* GET /inventory/v1/hosts
+Get systems (all hosts in the account)
+* +GET ++/inventory/v1/hosts/<uuid> +
+Get system details (e.g. after registration using the uuid provided)
+
+* GET /inventory/v1/hosts/<uuid>/system_profile 
+Get all system’ System Profile facts
+* GET /inventory/v1/hosts/<uuid>/system_profile+?fields[system_profile]=last_boot_time,os_kernel_version+
+Get specific system’ System Profile facts (e.g. +last_boot_time+ and +os_kernel_version+)
+* GET /inventory/v1/hosts/<uuid>/tags
+Get system’s tags
+* GET /inventory/v1/hosts+?filter[system_profile][infrastructure_type]=virtual++
++Get subset of systems (using filter on system profile)
+_Note: only the following facts are syndicated at present: __+bios_release_date, bios_vendor, bios_version, infrastructure_type, operating_system, owner_id, rhsm, sap_sids, sap_system+_
+* GET /inventory/v1/hosts?filter[culled_timestamp]
+Get systems with culled state (failed to connect back to console in last 14 days)
+* DELETE /inventory/v1/hosts/<uuid>
+Delete a system
+
+*Advisor:*
+
+* GET /insights/v1/rule/
+Get all active hits for the account
+* GET /insights/v1/export/hits/
+Get all rule hits on hosts
+_Note: _export are available as CSV and JSON
+
+* GET /insights/v1/export/hits?has_playbook=true
+Get all active hits with Ansible remediation playbook available
+* GET /insights/v1/system/<uuid>
+Get summary of all hits for given system 
+
+*Drift:*
+
+* GET /system-baseline/v1/baselines
+Get defined baselines
+* POST /system-baseline/v1/baselines
+Create a new baseline by passing a JSON request body with a +baseline_facts+ or a +inventory_uuid+ or +hsp_uuid+ to copy the baseline facts from e.g.
+----
+{
+  "baseline_facts": [
+    {
+      "name": "arch",
+      "value": "x86_64"
+    }
+  ],
+  "display_name": "my_baseline"
+}
+----
+_Note: DELETE and PATCH operations are also available on __+/system-baseline/v1/baselines/<baseline_id>+_
+
+* GET /drift/v1/comparison_report?system_ids[]=<uuids>,baseline_ids[]=<baseline_ids>,historical_system_profile_ids[]=<hsp_ids>,reference_id=<id>
+Run a comparison passing a list of systems, baselines, historical system profiles, and a reference for comparison
+_Note: __+<uuids>+__ are comma separated lists_
+* GET /+historical-system-profiles++/v1/systems/<uuid>+
+Get system’s historical system profiles
+* GET /historical-system-profiles/v1/profiles/<profile_id>
+Get specified system’s historical system profile
+
+*Vulnerability:*
+
+* GET /vulnerability/v1/vulnerabilities/cves?+affecting=true+
+Get vulnerabilities affecting systems in the account
+* GET /vulnerability/v1/report/executive
+Get executive reports e.g. CVEs by severity, top CVEs, etc
+
+*Compliance:*
+
+* GET /compliance/v1/systems
+Get systems associated with SCAP policies
+* GET /compliance/v1/profiles
+Get systems compliance/failure for defined reports
+
+*Policies:*
+
+* GET /policies/v1/policies
+Get all defined policies
+* POST /policies/v1/policies
+Create a new policy
+----
+{
+  "name": "my_policy",
+  "description": "My policy",
+  "isEnabled": true,
+  "conditions": "arch = \"x86_64\"",
+  "actions": "notification"
+}
+----
+_Note: DELETE and PUT operation is also available on __+/policies/<policy_id>+_
+
+* GET /policies/v1/policies/<policy_id>/history/trigger
+Get all systems triggering a policy
+
+*Patch:*
+
+* GET /patch/v1/advisories
+Get all systems with applicable advisories (patches available)
+* GET /patch/v1/systems/<uuid>/advisories
+Get all applicable advisories for given system
+
+*Subscriptions:*
+
+* GET /rhsm-subscriptions/v1/hosts/products/RHEL+?sla=Premium&usage=Production+
+Get all subscribed RHEL systems matching optional filters (e.g. Premium SLA, Production usage)
+
+*Remediations:*
+
+* GET /remediations/v1/remediations
+Get a list of defined remediations
+* POST /remediations/v1/remediations
+Create a new remediation and assign systems
+----
+{
+  "name": "Fix Critical CVEs",
+  "archived": true,
+  "auto_reboot": true,
+  "add": {
+    "issues": [
+      {
+        "id": "advisor:CVE_2017_6074_kernel|KERNEL_CVE_2017_6074",
+        "resolution": "mitigate",
+        "systems": [
+          "<uuid>"
+        ]
+      }
+    ]
+  }
+}
+----
+_Note: DELETE and PATCH operations are also available on __+/remediations/v1/remediations/<remediation_id>+_
+
+* GET /remediations/v1/remediations/<remediation_id>/playbook
+Get Ansible remediation playbook
+* POST /remediations/v1/remediations/<remediation_id>/playbook_runs
+Execute a remediation
+
+*Integrations & Notifications:*
+
+* GET /+notifications/v1/notifications/events?endDate=2021-11-23&limit=20&offset=0&sortBy=created%3ADESC&startDate=2021-11-09++
++Get event log history for list of last triggered Insights events and actions
+* GET /integrations/v1/endpoints
+Get list of configured third party integrations
+
+==== Example with Python
+
+
+In this example, we provide Python code that interacts with the Insights API using +requests+ library to abstract away the complexity of handling HTTP requests.
+
+$ python -m pip install requests
+
+*Authentication example*
+----
+
+>>> headers = {'Authorization': 'Basic <encoded_auth>'}
+----
+or+ + +
++>>> headers = {'++Authorization': 'Bearer <acces_token>'}+
+
+*GET example*
+
+----
+>>> import requests
+>>> insights_api_url = "https://console.redhat.com/api/inventory/v1/hosts"
+>>> response = requests.get(insights_api_url, headers=headers)
+>>> response.status_code
+200
+>>> response.json()
+{'total': 1195, 'count': 50, 'page': 1, 'per_page': 50, 'results': [{'insights_id': '<uuid>', [...]
+
+
+----
+*POST example*
+
+----
+>>> import requests
+>>> insights_api_url = "https://console.redhat.com/api/system-baseline/v1/baselines"
+>>> baseline = {"baseline_facts": [{"name": "arch", "value": "x86_64"}], "display_name": "my_baseline"}
+>>> response = requests.post(insights_api_url, headers=headers, json=baseline)
+>>> response.status_code
+200
+>>> response.json()
+{'account': '<account_id>', 'baseline_facts': [{'name': 'arch', 'value': 'x86_64'}], 'created': '2021-11-29T21:06:33.630905Z', 'display_name': 'my_baseline', 'fact_count': 1, 'id': '<baseline_id>', 'mapped_system_count': 0, 'notifications_enabled': True, 'updated': '2021-11-29T21:06:33.630910Z'}
+----
+
+==== Example with Ansible
+
+In this example, we provide an Ansible playbook that uses the +ansible.builtin.uri+ module to interact with the Insights API.
+
+*Playbook example*
+----
+
+---
+- hosts: localhost
+  connection: local
+  gather_facts: no
+
+  vars:
+    insights_api_url: "https://console.redhat.com/api"
+    insights_auth: "Basic <encoded_auth>"
+----
+or  +
+----
+    insights_auth: "Bearer <access_token>"
+
+  tasks:
+  - name: Get Inventory
+    uri:
+      url: "{{ insights_api_url }}/inventory/v1/hosts/"
+      method: GET
+      return_content: yes
+      headers:
+         Authorization: "{{ insights_auth }}"
+      status_code: 200
+   register: result
+
+  - name: Display inventory
+    debug:
+      var: result.json
+
+
+
+----
