@@ -2,87 +2,112 @@
 :experimental: true
 :product-name:
 
-This cheat sheet covers the basic Insights APIs. All examples are performed on https://console.redhat.com/api/[https://console.redhat.com/api/] using `v1` endpoints. Please refer to https://console.redhat.com/docs/api-docs[https://console.redhat.com/docs/api-docs] for latest API specifications and deprecations. 
+Red Hat Insights allows you to investigate and make changes to the configuration of hosts managed by Red Hat through REST APIs. This cheat sheet covers the basic APIs. All examples are performed on https://console.redhat.com/api/[https://console.redhat.com/api/] using `v1` endpoints. Please refer to https://console.redhat.com/docs/api-docs[https://console.redhat.com/docs/api-docs] for the latest API specifications and deprecations.
 
 == Authentication
 
-Insights API provides secure REST services over HTTPS endpoints. This protects authentication credentials in transit.
+The Insights API provides secure REST services over HTTPS endpoints. This protects authentication credentials in transit.
 
-== Basic Authentication
-Users of the Insights REST API can authenticate by providing their username and password within an HTTP header for methods such as GET, POST, PATCH, and DELETE.
+=== Basic Authentication
 
-Procedure
+.Create a base64 encoding for your username and password, submitting them with the syntax `<name>:<password>`:
+```
+echo -n 'admin:<password>' | openssl base64
+```
 
-. Concatenate the username and password with a colon. Note that the username is case-sensitive.
-`admin:password`
+. Include the <encoded_auth> output in an `Authorization: Basic` HTTP header in your request:
+----
+Authorization: Basic <encoded_auth>
+----
 
-. Encode this username and password string in base64 encoding
-`echo -n 'admin:password' | openssl base64`
+=== Red Hat API Token Authentication (recommended)
 
-. Include the `<encoded_auth>` from previous step in an HTTP Authorization: Basic header in your request. For example, the following header is used:
-`Authorization: Basic <encoded_auth>`
+. Log in to the https://access.redhat.com/[Red Hat Customer Portal] with your username and password.
+. Generate an offline token using https://access.redhat.com/management/api[Red Hat API Tokens] by following the instructions.
+. Generate an access token, submitting the offline token generated in the previous step:
+```
+curl https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token -d grant_type=refresh_token -d client_id=rhsm-api -d refresh_token=<offline_token>
+```
+. Include the access_token generated in the previous step in an `Authorization: Bearer` HTTP header in your request:
+----
+Authorization: Bearer <access_token>
+----
 
-== Red Hat API Token Authentication (recommended)
-Users of the Insights REST API can authenticate by providing a generated token using the https://access.redhat.com/management/api[Red Hat API Tokens] service.
+== Common Activities
 
-Procedure
+=== Host Inventory
 
-. Login to https://access.redhat.com/[Red Hat Customer Portal] with your username and password 
-. Generate an offline token using https://access.redhat.com/management/api[Red Hat API Tokens] by following the instructions
-. Generate an access token using the `<offline_token>` from previous step
-`curl https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token -d grant_type=refresh_token -d client_id=rhsm-api -d refresh_token=<offline_token>`
-. Include the generated `<access_token>` from previous step in an HTTP Authorization: Bearer header in your request. For example, the following header is used:
-`Authorization: Bearer <access_token>`
+Get all hosts in the account:
+----
+GET /inventory/v1/hosts
+----
 
-== Host Inventory
+Get system details (e.g., after registration, using the UUID provided):
+----
+GET /inventory/v1/hosts/<uuid>
+----
 
-`GET /inventory/v1/hosts`::
-Get systems (all hosts in the account)
+Get facts about all systems’ system profiles:
+----
+GET /inventory/v1/hosts/<uuid>/system_profile
+----
 
-`GET /inventory/v1/hosts/<uuid>`::
-Get system details (e.g. after registration using the uuid provided)
+Get facts about a specific system’s system profile (e.g., `last_boot_time` and `os_kernel_version`):
+----
+GET /inventory/v1/hosts/<uuid>/system_profile+?fields[system_profile]=last_boot_time,os_kernel_version
+----
 
-`GET /inventory/v1/hosts/<uuid>/system_profile`::
-Get all system’ System Profile facts
+NOTE: Only the following facts are syndicated at present: `bios_release_date`, `bios_vendor`, `bios_version`, `infrastructure_type`, `operating_system`, `owner_id`, `rhsm`, `sap_sids`, `sap_system`.
 
-`GET /inventory/v1/hosts/<uuid>/system_profile+?fields[system_profile]=last_boot_time,os_kernel_version`::
-Get specific system’ System Profile facts (e.g. `last_boot_time` and `os_kernel_version`)
+Get a system’s tags:
+----
+GET /inventory/v1/hosts/<uuid>/tags
+----
 
-`GET /inventory/v1/hosts/<uuid>/tags`::
-Get system’s tags
+Get a subset of systems (using a filter on system profile):
+----
+GET /inventory/v1/hosts?filter[system_profile][infrastructure_type]=virtual
+----
 
-`GET /inventory/v1/hosts?filter[system_profile][infrastructure_type]=virtual`::
-Get subset of systems (using filter on system profile)
-
-NOTE: Only the following facts are syndicated at present: `bios_release_date, bios_vendor, bios_version, infrastructure_type, operating_system, owner_id, rhsm, sap_sids, sap_system`
-
-`DELETE /inventory/v1/hosts/<uuid>`::
-Delete a system
+Delete a system:
+----
+DELETE /inventory/v1/hosts/<uuid>
+----
 
 == Advisor
 
-`GET /insights/v1/rule/`::
-Get all active hits for the account
+Get all active hits for the account:
+----
+GET /insights/v1/rule/
+----
 
-`GET /insights/v1/export/hits/`::
-Get all rule hits on hosts
+Get all rule hits on hosts:
+----
+GET /insights/v1/export/hits/
+----
 
-NOTE: Exports are available as CSV and JSON
+NOTE: Exports are available as CSV and JSON.
 
-`GET /insights/v1/export/hits?has_playbook=true`::
-Get all active hits with Ansible remediation playbook available
+Get all active hits with Ansible remediation playbooks:
+----
+GET /insights/v1/export/hits?has_playbook=true
+----
 
-`GET /insights/v1/system/<uuid>`::
-Get summary of all hits for given system 
+Get summary of all hits for a given system :
+----
+GET /insights/v1/system/<uuid>
+----
 
 == Drift
 
-`GET /system-baseline/v1/baselines`::
-Get defined baselines
+Get defined baselines:
+----
+GET /system-baseline/v1/baselines
+----
 
-`POST /system-baseline/v1/baselines`::
 Create a new baseline by passing a JSON request body with a `baseline_facts` or a `inventory_uuid` or `hsp_uuid` to copy the baseline facts from e.g.
 ----
+POST /system-baseline/v1/baselines
 {
   "baseline_facts": [
     {
@@ -93,43 +118,58 @@ Create a new baseline by passing a JSON request body with a `baseline_facts` or 
   "display_name": "my_baseline"
 }
 ----
-NOTE: DELETE and PATCH operations are also available on `/system-baseline/v1/baselines/<baseline_id>`
 
-`GET /drift/v1/comparison_report?system_ids[]=<uuids>,baseline_ids[]=<baseline_ids>,historical_system_profile_ids[]=<hsp_ids>,reference_id=<id>`::
-Run a comparison passing a list of systems, baselines, historical system profiles, and a reference for comparison
+NOTE: DELETE and PATCH operations are also available on `/system-baseline/v1/baselines/<baseline_id>`.
 
-NOTE: `<uuids>` are comma separated lists
+Run a comparison, passing a list of systems, baselines, historical system profiles, and a reference for comparison (multiple UUIDs or other items are formatted as comma-separated lists):
+----
+GET /drift/v1/comparison_report?system_ids[]=<uuids>,baseline_ids[]=<baseline_ids>,historical_system_profile_ids[]=<hsp_ids>,reference_id=<id>
+----
 
-`GET /historical-system-profiles/v1/systems/<uuid>`::
-Get system’s historical system profiles
+Get historical system profiles on a system:
+----
+GET /historical-system-profiles/v1/systems/<uuid>
+----
 
-`GET /historical-system-profiles/v1/profiles/<profile_id>`::
-Get specified system’s historical system profile
+Get a specific historical system profile on a system:
+----
+GET /historical-system-profiles/v1/profiles/<profile_id>
+----
 
-== Vulnerability
+== Vulnerabilities
 
-`GET /vulnerability/v1/vulnerabilities/cves?affecting=true`::
-Get vulnerabilities affecting systems in the account
+Get vulnerabilities affecting systems in the account:
+----
+GET /vulnerability/v1/vulnerabilities/cves?affecting=true
+----
 
-`GET /vulnerability/v1/report/executive`::
-Get executive reports e.g. CVEs by severity, top CVEs, etc
+Get executive reports, e.g., CVEs by severity, top CVEs, etc.:
+----
+GET /vulnerability/v1/report/executive
+----
 
 == Compliance
 
-`GET /compliance/v1/systems`::
-Get systems associated with SCAP policies
+Get systems associated with Security Content Automation Protocol (SCAP) policies:
+----
+GET /compliance/v1/systems
+----
 
-`GET /compliance/v1/profiles`::
-Get systems compliance/failure for defined reports
+Get systems' compliance/failures for defined reports:
+----
+GET /compliance/v1/profiles
+----
 
 == Policies
 
-`GET /policies/v1/policies`::
-Get all defined policies
-
-`POST /policies/v1/policies`::
-Create a new policy
+Get all defined policies:
 ----
+GET /policies/v1/policies
+----
+
+Create a new policy:
+----
+POST /policies/v1/policies
 {
   "name": "my_policy",
   "description": "My policy",
@@ -139,32 +179,42 @@ Create a new policy
 }
 ----
 
-NOTE: DELETE and PUT operation is also available on `/policies/<policy_id>`
+NOTE: DELETE and PUT operations are also available on `/policies/<policy_id>`.
 
-`GET /policies/v1/policies/<policy_id>/history/trigger`::
-Get all systems triggering a policy
-
-== Patch
-
-`GET /patch/v1/advisories`::
-Get all systems with applicable advisories (patches available)
-
-`GET /patch/v1/systems/<uuid>/advisories`::
-Get all applicable advisories for given system
-
-== Subscriptions
-
-`GET /rhsm-subscriptions/v1/hosts/products/RHEL?sla=Premium&usage=Production`::
-Get all subscribed RHEL systems matching optional filters (e.g. Premium SLA, Production usage)
-
-== Remediations
-
-`GET /remediations/v1/remediations`::
-Get a list of defined remediations
-
-`POST /remediations/v1/remediations`::
-Create a new remediation and assign systems
+Get all systems triggering a policy:
 ----
+GET /policies/v1/policies/<policy_id>/history/trigger
+----
+
+=== Patches
+
+Get all systems with applicable advisories (patches available):
+----
+GET /patch/v1/advisories
+----
+
+Get all applicable advisories for a specific system:
+----
+GET /patch/v1/systems/<uuid>/advisories
+----
+
+=== Subscriptions
+
+Get all subscribed Red Hat Enterprise Linux systems matching filters (e.g., Premium SLA, Production usage):
+----
+GET /rhsm-subscriptions/v1/hosts/products/RHEL?sla=Premium&usage=Production
+----
+
+=== Remediations
+
+Get a list of defined remediations:
+----
+GET /remediations/v1/remediations
+----
+
+Create a new remediation and assign systems:
+----
+POST /remediations/v1/remediations
 {
   "name": "Fix Critical CVEs",
   "archived": true,
@@ -183,31 +233,39 @@ Create a new remediation and assign systems
 }
 ----
 
-NOTE: DELETE and PATCH operations are also available on `/remediations/v1/remediations/<remediation_id>`
+NOTE: DELETE and PATCH operations are also available on `/remediations/v1/remediations/<remediation_id>`.
 
-`GET /remediations/v1/remediations/<remediation_id>/playbook`::
-Get Ansible remediation playbook
+Get an Ansible remediation playbook:
+----
+GET /remediations/v1/remediations/<remediation_id>/playbook
+----
 
-`POST /remediations/v1/remediations/<remediation_id>/playbook_runs`::
-Execute a remediation
+Execute a remediation:
+----
+POST /remediations/v1/remediations/<remediation_id>/playbook_runs
+----
 
-== Integrations & Notifications
+=== Integrations and Notifications
 
-`GET /notifications/v1/notifications/events?endDate=2021-11-23&limit=20&offset=0&sortBy=created%3ADESC&startDate=2021-11-09`::
-Get event log history for list of last triggered Insights events and actions
+Get event log history for a list of last triggered Insights events and actions:
+GET /notifications/v1/notifications/events?endDate=2021-11-23&limit=20&offset=0&sortBy=created%3ADESC&startDate=2021-11-09
+----
 
-`GET /integrations/v1/endpoints`::
-Get list of configured third party integrations
+Get list of configured third party integrations:
+----
+GET /integrations/v1/endpoints
+----
 
-== Example with Python
+== Python Examples
 
-In this example, we provide Python code that interacts with the Insights API using `requests` library to abstract away the complexity of handling HTTP requests.
+The following Python code interacts with the Insights API using the `requests` library to abstract away the complexity of handling HTTP requests.
 
 ----
 $ python -m pip install requests
 ----
 
-*Authentication example*
+=== Authentication
+
 ----
 >>> headers = {'Authorization': 'Basic <encoded_auth>'}
 ----
@@ -216,7 +274,7 @@ or
 >>> headers = {'Authorization': 'Bearer <acces_token>'}
 ----
 
-*GET example*
+=== GET
 
 ----
 >>> import requests
@@ -228,7 +286,7 @@ or
 {'total': 1195, 'count': 50, 'page': 1, 'per_page': 50, 'results': [{'insights_id': '<uuid>', [...]
 ----
 
-*POST example*
+=== POST
 
 ----
 >>> import requests
@@ -241,11 +299,9 @@ or
 {'account': '<account_id>', 'baseline_facts': [{'name': 'arch', 'value': 'x86_64'}], 'created': '2021-11-29T21:06:33.630905Z', 'display_name': 'my_baseline', 'fact_count': 1, 'id': '<baseline_id>', 'mapped_system_count': 0, 'notifications_enabled': True, 'updated': '2021-11-29T21:06:33.630910Z'}
 ----
 
-== Example with Ansible
+== Ansible Example
 
-In this example, we provide an Ansible playbook that uses the `ansible.builtin.uri` module to interact with the Insights API.
-
-*Playbook example*
+The following Ansible playbook uses the `ansible.builtin.uri` module to interact with the Insights API.
 
 ----
 ---
