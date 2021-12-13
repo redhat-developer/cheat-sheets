@@ -10,11 +10,10 @@ The Insights API provides secure REST services over HTTPS endpoints. This protec
 
 === Basic Authentication
 
-.Create a base64 encoding for your username and password, submitting them with the syntax `<name>:<password>`:
+. Create a base64 encoding for your username and password, submitting them with the syntax `<name>:<password>`:
 ```
 echo -n 'admin:<password>' | openssl base64
 ```
-
 . Include the <encoded_auth> output in an `Authorization: Basic` HTTP header in your request:
 ----
 Authorization: Basic <encoded_auth>
@@ -248,6 +247,7 @@ POST /remediations/v1/remediations/<remediation_id>/playbook_runs
 === Integrations and Notifications
 
 Get event log history for a list of last triggered Insights events and actions:
+----
 GET /notifications/v1/notifications/events?endDate=2021-11-23&limit=20&offset=0&sortBy=created%3ADESC&startDate=2021-11-09
 ----
 
