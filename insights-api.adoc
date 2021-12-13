@@ -10,11 +10,14 @@ The Insights API provides secure REST services over HTTPS endpoints. This protec
 
 === Basic Authentication
 
-. Create a base64 encoding for your username and password, submitting them with the syntax `<name>:<password>`:
-```
+. Create a base64 encoding for your username and password, submitting them with the syntax `<name>:<password>`: 
++
+----
 echo -n 'admin:<password>' | openssl base64
-```
+----
+
 . Include the <encoded_auth> output in an `Authorization: Basic` HTTP header in your request:
++
 ----
 Authorization: Basic <encoded_auth>
 ----
@@ -24,10 +27,12 @@ Authorization: Basic <encoded_auth>
 . Log in to the https://access.redhat.com/[Red Hat Customer Portal] with your username and password.
 . Generate an offline token using https://access.redhat.com/management/api[Red Hat API Tokens] by following the instructions.
 . Generate an access token, submitting the offline token generated in the previous step:
-```
++
+----
 curl https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token -d grant_type=refresh_token -d client_id=rhsm-api -d refresh_token=<offline_token>
-```
+----
 . Include the access_token generated in the previous step in an `Authorization: Bearer` HTTP header in your request:
++
 ----
 Authorization: Bearer <access_token>
 ----
