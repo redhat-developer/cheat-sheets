@@ -1,356 +1,363 @@
-= Linux Intermediate
+= Intermediate Linux Commands Cheat Sheet
 :experimental: true
 :product-name:
+:version: 1.0.0
 
-This cheat sheet introduces you to more Linux commands that every developer/sysadmin should know.
+This cheat sheet presents a collection of Linux commands and executables typically used by developers who want to move beyond the basics of working with the Linux operating system. Some examples of basic operations are creating and deleting directories and files, navigating around the file system and installing applications. Examples of intermediate use involves managing processes, users and groups on a particular machine running under Linux as well as monitoring disk and network usage, to name a few.
 
-== more
+The commands are organized according to category.
 
-`more` command lets you view output in a scrollable manner.
+== Console and output management commands
 
-[source, bash]
-----
-more /etc/passwd
 
-ls -ll | more
-----
+Commands in this section apply to working in a terminal window console and output from a computer or virtual machine running the Linux operating system.
 
-* Up arrow and Down arrow let you scroll through the output.
-* `Space` key scrolls down one page.
-* `b` key scrolls up one page.
-* `/` search in the text.
+=== history
 
-== sed
+`history [options]`
 
-`sed` is used among other things to apply substitution, find or replace files content.
+Displays a list of commands executed on the system. The `history` command can also be used to manipulate the history list and the way that history information is displayed.
 
-[source, bash]
-----
-sed 's/blue/red/' colors.txt # changes the first occurrence in each line containing the blue word to red
+*Example:*
 
-sed 's/blue/red/2' colors.txt # changes the second occurrence in each line containing the blue word to red
+The following example uses the `history` command to show a list of command that have been executed on the system. The example pipes the result to the `more` command, which shows the first 15 lines of output using the `-15` option:
 
-sed 's/blue/red/g' colors.txt # changes all the occurrences containing the blue word to red
+```
+$ history | more -15
+   24  diag
+   25  ss
+   26  uname
+   27  lscpu
+   28  timedatectl
+   29  date
+   30  chronyc
+   31  lshw
+   32  sosreport
+   33  sos
+   34  tlog
+   35  fsck
+   36  fsck --help
+   37  fsck -A
+   38  sudo fsck -A
+--More--
+```
 
-sed '1,3 s/blue/red/g' colors.txt # changes all the occurrences from line number 1 to 3 containing the blue word to red
+=== more
 
-sed '5d' colors.txt # deletes line number 5
+`more [options] </path/to/filename or stdout>`
 
-sed '12,$d' colors.txt # deletes from line 12 to last line
-----
+Allows a user to view and traverse the contents of a file or stdout. The `more` command invokes within a distinct command-line user interface. To exit the process, users strike the `q` key.
 
-The `sed` command also supports regular expression.
+*Examples:*
 
-== awk
+This example uses the `more` command to display the first four lines of the file `/etc/passwd`. Users can then traverse the remainder of the file one line at a time by striking the `<ENTER>` key:
 
-`awk` is a text manipulation tool implementing a powerful scripting language.
+```
+$ more -4 /etc/passwd 
+root:x:0:0:root:/root:/bin/bash
+bin:x:1:1:bin:/bin:/sbin/nologin
+daemon:x:2:2:daemon:/sbin:/sbin/nologin
+adm:x:3:4:adm:/var/adm:/sbin/nologin
+--More--(5%)
+```
 
-[source, bash]
-----
-awk '/red/ {print}' colors.txt # prints lines matching the given pattern
+=== top
 
-awk '{print $1,$4}' colors.txt # split each line in columns (whitespace as separator) and prints column 1 and 4
+`top [options]` 
 
-awk 'NR==3, NR==6 {print NR,$0}' colors.txt  # prints from line 3 to 6 prefixed with the line number (NR)
+Displays information about the running Linux processes.
 
-awk 'NR > 1 {print}' colors.txt # prints from line 2 to end of file
-----
+*Example:*
 
-== top
+The following command displays the `top` command with the result piped to the `more` command in order to view the first portion of the output:
 
-`top` command shows the Linux processes providing a dynamic real-time view of the system.
+```
+$ top | more
+top - 12:02:29 up 5 days, 20:20,  2 users,  load average: 0.01, 0.02, 0.00
+Tasks: 201 total,   2 running, 199 sleeping,   0 stopped,   0 zombie
+%Cpu(s):  0.0 us,  6.2 sy,  0.0 ni,93.8 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st
+MiB Mem :   7770.8 total,   5409.8 free,   1240.8 used,   1120.2 buff/cache
+MiB Swap:   8092.0 total,   8092.0 free,      0.0 used.   6205.6 avail Mem 
+    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND                                 
+  82399 guest  20   0   65584   5120   4212 R   5.9   0.1   0:00.02 top                                      
+      1 root      20   0  175932  14212   8924 S   0.0   0.2   0:06.21 systemd                                
+      2 root      20   0       0      0      0 S   0.0   0.0   0:00.13 kthreadd                               
+      3 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 rcu_gp                                 
+      4 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 rcu_par_gp                             
+      6 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 kworker/0:0H-events_highpri            
+      9 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 mm_percpu_wq                           
+     10 root      20   0       0      0      0 S   0.0   0.0   0:02.73 ksoftirqd/0                            
+     11 root      20   0       0      0      0 R   0.0   0.0   0:01.10 rcu_sched                           
+     12 root      rt   0       0      0      0 S   0.0   0.0   0:00.00 migration/0                            
+     13 root      rt   0       0      0      0 S   0.0   0.0   0:00.04 watchdog/0                             
+     14 root      20   0       0      0      0 S   0.0   0.0   0:00.00 cpuhp/0                                
+     16 root      20   0       0      0      0 S   0.0   0.0   0:00.00 kdevtmpfs                              
+    
+--More--
+```
 
-[source, bash]
-----
-top
+== Disk management commands
 
-top -u # order process by CPU usage
-top -o mem # order process by memory
-top -n 5 # only shows 5 processes 
-----
+Commands in this section apply to working with disks, devices, and volumes on a computer running the Linux operating system. 
 
-image::images/top.png[]
+=== df
 
-== find
+`df [options] <file name>`
 
-`find` command is used to search and locate files or directories that meet certain conditions.
+Shows the amount of disk space used and available according to the file system that represents a particular disk device mount. If no file name is given, the space available on all mounted file systems is displayed.
 
-[source, bash]
-----
-find /home -name users.txt # finds users.txt file under /home and deep
+*Example:*
 
-find /home -iname users.txt # finds users.txt file ignoring case under /home and deep
+The following example shows the invocation and result of `df` displaying all mounted file systems. Disk space is shown in 1K blocks (note that `$` is the command-line prompt symbol):
 
-find . -type f -name "*.java" # finds all Java files from current dir and deep
+```
+$ df
+Filesystem            1K-blocks    Used Available Use% Mounted on
+devtmpfs                3949180       0   3949180   0% /dev
+tmpfs                   3978636       0   3978636   0% /dev/shm
+tmpfs                   3978636    9464   3969172   1% /run
+tmpfs                   3978636       0   3978636   0% /sys/fs/cgroup
+/dev/mapper/rhel-root  50065528 5588744  44476784  12% /
+/dev/mapper/rhel-home  24445276  228104  24217172   1% /home
+/dev/sda1               1038336  262796    775540  26% /boot
+tmpfs                    795724      64    795660   1% /run/user/1000
+```
 
-find / -type f -perm 0777 # finds all files 
+=== du
 
-find / -perm /a=x # finds all executable files
+`du [options] <starting directory or file>`
 
-find /home -user asotobu # finds all files that belong to asotobu
+Reports information about disk usage on the local computer or virtual machine.
 
-find /home -group developer # finds all files that belong to the developer group
+*Example:*
 
-find / -mtime 10 # finds all files modified in the last 10 days
+The following example uses the command `du` to report the amount of disk space used by the files in the directory `/etc/bin`:
 
-find / -amin -10 # finds all files accessed in the last 10 minutes
-----
+```
+$ du /usr/bin
+365940	/usr/bin
+```
 
-== pwd
+== File and directory management commands
 
-`pwd` prints the current working directory.
+Commands in this section apply to working with files and directories on a computer running the Linux operating system.
 
-[source, bash]
-----
-pwd
+=== find
 
-/home/asotobu/git
-----
+`sudo find <starting/directory> -name <file/directory name>`
 
-== df
+Finds a file or directory by name.
 
-`df` gets a summary of available and used disk space usage of the file system.
+*Example:*
 
-[source, bash]
-----
-df
-----
+The following command finds a file named `hostname` starting from the root (`/`) directory of the computer's file system. Note that the command starts with `sudo` in order to access files restricted to the `root` user:
 
-image::images/df.png[]
+```
+$ sudo find / -name hostname
+/proc/sys/kernel/hostname
+/etc/hostname
+/var/lib/selinux/targeted/active/modules/100/hostname
+/usr/bin/hostname
+/usr/lib64/gettext/hostname
+/usr/share/licenses/hostname
+/usr/share/doc/hostname
+/usr/share/bash-completion/completions/hostname
+/usr/share/selinux/targeted/default/active/modules/100/hostname
+/usr/libexec/hostname
+```
 
-Disk space in human-readable format.
+=== pwd
 
-[source, bash]
-----
-df -h
-----
+`pwd`
 
-image::images/df-h.png[]
+Displays the name of the present working directory.
 
-== du
+*Example:*
 
-`du` is used to check the information of disk usage of files and directories.
+The following example displays the invocation and result of using the command `pwd` in the `HOME` directory for a user named `guest`:
 
-[source, bash]
-----
-du
-----
+```
+$ pwd
+/home/guest
+```
 
-image::images/du.png[]
+=== alias
 
-Disk space in human-readable format.
+`alias [options] <shortcut=command>`
 
-[source, bash]
-----
-du -h 
-----
+Assigns a shortcut name to an existing command or executable.
 
-image::images/du-h.png[]
+*Example:*
 
-== diff
+The following example creates a temporary alias for the `clear` command. The alias is named `cls`. The `clear` command clears the terminal window. Once created, `cls` will also clear the terminal window:
 
-This command displays the differences in the files by comparing the files line by line.
+`$ alias cls='clear'`
 
-Symbols are:
+=== awk
 
-* `a` for add
-* `c` for change
-* `d` for delete
+Finds, filters, or replaces text in a file or from stdout.
 
-[source, bash]
-----
-diff first.txt second.txt
+*Examples:*
 
-2,3d1
-< mv
-< comm
-4a3,4
-> diff
-> comm
-----
+This example pipes the string "Bobby is cool" to the `awk` command. The `awk` command invokes the subcommand named `sub` to find any occurrence of "Bobby" and change the string to "Teddy". Then, the subcommand `print` outputs the result of the substitution:
 
-`2,3d1` means from line 2 to 3 in file 1 needs to be delated to match line 1 of the second file.
+```
+$ echo "Bobby is cool" | awk '{sub("Bobby","Teddy"); print}'
+Teddy is cool
+```
 
-`4a2,3` means that line 4 in file 1 need to add lines 3 and 4 from the second file.
+This example uses `awk` to filter output according to field position. First, the example shows the output of the `who` command, which lists the current users logged in to the computer. The `who` command displays four fields (columns). The fields are username, the terminal line number, the login time, and the machine from which access originated.
 
-[source, bash]
-----
-diff -c first.txt second.txt
+The second execution of `who` pipes the result to `awk`. Then, `awk` uses the `print %1` subcommand set to show only the first field name. The third execution of `who` pipes the result to `awk`, which then filters input to print the values in the second field:
 
-*** first.txt	Mon Feb  8 16:28:26 2021
---- second.txt	Mon Feb  8 16:28:38 2021
-***************
-*** 1,4 ****
-  cat
-- mv
-- comm
- cp
---- 1,4 ----
-cat
- cp
-+ diff
-+ comm
-----
+```
+$ who
+jaggermick pts/0        2022-01-19 09:14 (192.168.86.28)
+guest pts/1        2022-01-19 10:07 (192.168.86.20)
 
-== alias
+$ who | awk '{print $1}'
+jaggermick
+guest
 
-Aliases are custom shortcuts to Linux commands.
-Some aliases are provided by out-of-the-box:
+$ who | awk '{print $2}'
+pts/0
+pts/1
 
-[source, bash]
-----
-alias
+```
 
-l='ls -lah'
-la='ls -lAh'
-ll='ls -lh'
-ls='ls -G'
-lsa='ls -lah'
-md='mkdir -p'
-----
+=== diff
 
-To create custom aliases:
+`diff [options] file1 file2`
 
-[source, bash]
-----
-alias k=kubectl
-----
+Displays the difference in content between two files.
 
-== ping
+*Example:*
 
-`ping` checks network connectivity issues by sending one or more ICMP Echo Request packages to a specified destination IP.
+The following example uses the `printf` command to create three files named `one.txt`, `two.txt`, and `three.txt`. Each file contains a list of names. The files named `one.txt` and `three.txt` have identical content. The file `two.txt` has an additional name.
 
-[source, bash]
-----
-ping google.com
+The first invocation of `diff` compares the files `one.txt` and `two.txt`. The second invocation compares files `one.txt` to `three.txt`. 
 
-PING google.com (216.58.211.238): 56 data bytes
-64 bytes from 216.58.211.238: icmp_seq=0 ttl=116 time=10.584 ms
-64 bytes from 216.58.211.238: icmp_seq=1 ttl=116 time=11.002 ms
-64 bytes from 216.58.211.238: icmp_seq=2 ttl=116 time=10.802 ms
-----
+The first invocation reports that there is difference in `two.txt` and that the fourth line from the file `two.text` should be added (`a`) to the third line in `one.txt`. The value of the fourth line in `two.txt` is `Shemp`.
 
-[source, bash]
-----
-ping –c 2 google.com # sends only 2 packets
+The second invocation uses the `-s` option to display the report that indicates the files `one.txt` and `three.txt` are identical. If the `-s` option was not used, there would be no output to the console (by default, identical files are not reported in stdout):
 
-ping –w 25 google.com # sends packets during 25 seconds
+```
+$ printf  "Moe\nLarry\nCurly\n" > one.txt
+$ printf  "Moe\nLarry\nCurly\nShemp\n" > two.txt
+$ printf  "Moe\nLarry\nCurly\n" > three.txt
 
-ping –i 0.5 google.com # sends packets with an interval of 0.5 seconds
-----
+$ diff one.txt two.txt 
+3a4
+> Shemp
 
-== traceroute
+$ diff -s one.txt three.txt 
+Files one.txt and three.txt are identical
 
-`traceroute` elicits a response from the router at each hop from your computer to the destination.
+```
 
-[source, bash]
-----
-traceroute google.com
+=== sed
 
- 1  192.168.1.1 (192.168.1.1)  0.708 ms  0.479 ms  1.094 ms
- 2  239.red-81-46-38.customer.xxxxxxxxxx.net (81.46.38.239)  2.685 ms  1.551 ms  2.544 ms
- 3  166.red-81-46-45.customer.xxxxxxxxxx.net (81.46.45.166)  10.314 ms  12.277 ms  13.097 ms
- 4  * 241.red-81-46-45.customer.xxxxxxxx.net (81.46.45.241)  26.055 ms  15.976 ms
- 5  * * *
- 6  176.52.253.93 (176.52.253.93)  10.825 ms  10.848 ms  11.337 ms
- 7  72.14.211.154 (72.14.211.154)  11.168 ms
-    5.53.1.74 (5.53.1.74)  10.799 ms
-    72.14.211.154 (72.14.211.154)  11.604 ms
- 8  * * *
- 9  108.170.253.241 (108.170.253.241)  12.260 ms
-    142.250.62.202 (142.250.62.202)  12.149 ms
-    209.85.142.100 (209.85.142.100)  11.195 ms
-10  108.170.253.247 (108.170.253.247)  13.657 ms
-    108.170.253.229 (108.170.253.229)  13.035 ms
-    74.125.253.197 (74.125.253.197)  11.983 ms
-11  mad07s09-in-f14.1e100.net (172.217.17.14)  10.121 ms
-    74.125.37.217 (74.125.37.217)  11.999 ms
-    mad07s09-in-f14.1e100.net (172.217.17.14)  10.890 ms
-----
+`sed [options] <manipulation instructions> <path/to/filename or stdout>`
 
-== nslookup
+Manipulates the content of a file or output sent to stdout.
 
-`nslookup` displays DNS details.
+*Example:*
 
-[source, bash]
-----
-nslookup google.com
-Server:		80.58.61.254
-Address:	80.58.61.254#53
+The following example uses the `echo` command to send the string `Bobby is cool` to the `sed` command. The command `sed` uses the `s` subcommand to substitute the name `Teddy` where the name `Bobby` occurs. The output is then displayed:
+
+(`$` is the command-line prompt symbol.)
+
+```
+$ echo Bobby is cool | sed 's/Bobby/Teddy/'
+Teddy is cool
+```
+
+== Network commands
+
+Commands in this section apply to working with networks on and from a Linux computer.
+
+=== hostname
+
+`hostname`
+
+Reports the hostname of the local computer.
+
+*Example:*
+
+```
+$ hostname
+localhost.localdomain
+```
+
+=== nslookup
+
+`nslookup [options] <domain_name>`
+
+A program that queries for information about a particular Internet domain name.
+
+*Example:*
+
+
+The following example invokes `nslookup` against the domain name `developers.redhat.com`:
+
+```
+$ nslookup developers.redhat.com
+Server:		192.168.86.1
+Address:	192.168.86.1#53
 
 Non-authoritative answer:
-Name:	google.com
-Address: 216.58.211.238
-----
+developers.redhat.com	canonical name = developers.redhat.com2.edgekey.net.
+developers.redhat.com2.edgekey.net	canonical name = developers.redhat.com2.edgekey.net.globalredir.akadns.net.
+developers.redhat.com2.edgekey.net.globalredir.akadns.net	canonical name = e40408.dsca.akamaiedge.net.
+Name:	e40408.dsca.akamaiedge.net
+Address: 23.199.47.87
+Name:	e40408.dsca.akamaiedge.net
+Address: 23.199.47.85
+Name:	e40408.dsca.akamaiedge.net
+Address: 2600:1406:3400::6862:7512
+Name:	e40408.dsca.akamaiedge.net
+Address: 2600:1406:3400::6862:7543
+```
 
-== hostname
 
-`hostname` shows the computer’s hostname and domain name.
+=== traceroute
 
-[source, bash]
-----
-hostname
+`traceroute [options] <target address or domain_name>`
 
-localhost.localdomain
+Reports the route that a packet takes in hops to move through the Internet to reach its destination.
 
-hostname -I # display all the network addresses
+The program `traceroute` is not part of Red Hat Enterprise Linux (RHEL) by default. It must be installed using `sudo dnf install traceroute`.
 
-10.0.2.15
-----
+*Example:*
 
-== history
+The following example reports the route from the local machine to `redhat.com`. The `-m` option is used to limit the output to the first five hops:
 
-`history` command shows all of the last commands that have been recently used.
+```
+$ traceroute -m 5 developers.redhat.com
+traceroute to developers.redhat.com (23.199.47.85), 5 hops max, 60 byte packets
+ 1  _gateway (192.168.86.1)  0.599 ms  0.514 ms  0.656 ms
+ 2  142-254-237-093.inf.spectrum.com (142.254.237.93)  11.974 ms  11.874 ms  17.793 ms
+ 3  agg53.lsaicaev02h.socal.rr.com (24.30.168.85)  19.294 ms  20.242 ms  19.224 ms
+ 4  72.129.19.22 (72.129.19.22)  18.984 ms  19.888 ms  19.969 ms
+ 5  agg26.tustcaft01r.socal.rr.com (72.129.17.2)  13.575 ms  19.673 ms  13.579 ms
+```
 
-[source, bash]
-----
-history
+== RHEL management commands
 
-9982  pwd
-9983  cd ..
-9984  cd tmp9
-9985  vi first.txt
-9986  vi second.txt
-9987  diff first.txt second.txt
-9988  diff -c first.txt second.txt
-9989  ping google.com
-9990  uname -a
-9991  traceroute
-9992  traceroute google.com
-9993  ll
-9994  alias
-9995  finger
-9996  groups
-9997  nslookup google.com
-9998  sestatus
-9999  hostname -d
-10000  hostname -A
-10001  code .
-----
+The commands in this section apply to working with the Red Hat Enterprise Linux operating system.
 
-You can run any of the commands by appending exclamation (`!`) to the number of the command (i.e `!9982` runs `pwd`).
+=== sestatus
 
-== uname
+`sestatus [options]`
 
-`uname` displays basic information about the operating system and hardware.
+This program is used to report status information about a computer or virtual machine running SELinux.
 
-[source, bash]
-----
-uname
-Linux
+*Example:*
 
-uname -a 
-Linux localhost.localdomain 5.8.15-301.fc33.x86_64 # SMP Thu Oct 15 16:58:06 UTC 2020 x86_64 x86_64 x86_64 GNU/Linux
-----
+The following example invokes the program `sestatus` and displays the default response:
 
-== sestatus
-
-`sestatus` shows the current status of the SELinux.
-
-[source, bash]
-----
-sestatus
-
+```
+$ sestatus
 SELinux status:                 enabled
 SELinuxfs mount:                /sys/fs/selinux
 SELinux root directory:         /etc/selinux
@@ -360,77 +367,148 @@ Mode from config file:          enforcing
 Policy MLS status:              enabled
 Policy deny_unknown status:     allowed
 Memory protection checking:     actual (secure)
-Max kernel policy version:      28
-----
+Max kernel policy version:      33
+```
 
-== finger
+=== uname
 
-`finger` shows user information of all the users logged in. 
+`uname [options]`
 
-[source, bash]
-----
-finger
+The command `uname` reports system information about the local computer.
 
-Login    Name                 TTY  Idle  Login  Time   Office  Phone
-asotobu  Alex Soto            tty2  9:51  Mon    09:26
-----
+*Example:*
 
-== groups
+The following example uses the `-a` option with `uname` to report all the system information about the local computer:
 
-`groups` prints the names of the primary and any supplementary groups of a username or of the current process.
+```
+$ uname -a
+Linux localhost.localdomain 4.18.0-348.el8.x86_64 #1 SMP Mon Oct 4 12:17:22 EDT 2021 x86_64 x86_64 x86_64 GNU/Linux
+```
 
-[source, bash]
-----
-groups
+== Users and groups commands
 
-osboxes wheel
+The following commands apply to working with users and groups as supported by the Linux operating system.
 
-groups root # set groups of a given username
+=== users
 
-root : root
-----
+`users [options]`
 
-== useradd
+Displays the names of users logged into the computer.
 
-`useradd` command creates a new user on the Linux system.
+*Example:*
 
-[source, bash]
-----
-sudo useradd alex
+The following example uses the command `users` to list all users logged into the system:
 
-sudo useradd -m alexandra # creates the user with home directory
+```
+$ users
+cooluser jaggermick lennonjohn
+```
 
-sudo useradd -u 1500 ada # creates the user with User Id
+=== useradd
 
-sudo useradd -g users alex # creates the user with Group Id
+`adduser [options] <username>`
 
-sudo useradd -g users -G wheel,developers alex # creates the user with primary and secondary groups
+Adds a user to the computing environment. The command must be run as `sudo` for administrator access.
 
-sudo useradd -s /usr/bin/zsh alex # creates the user with specific shell
- 
-sudo useradd -e 2019-01-22 alex # creates atheuser with the expiration date
-----
+*Example:*
 
-== groupadd
+The following example adds a user with the login name `cooluser`. The `HOME` directory `home/cooluser` is created by default. Then, the example invokes the command `passwd` to set a password for the new user:
 
-`groupadd` command creates a new group account on the Linux system.
+```
+$ sudo adduser  cooluser
 
-[source, bash]
-----
-sudo groupadd developers 
+$ sudo passwd cooluser
+Changing password for user cooluser.
+New password: 
+Retype new password: 
+passwd: all authentication tokens updated successfully.
+```
 
-sudo groupadd -g 1010 mygroup # creates the group with Group Id
+=== userdel
 
-sudo groupadd -K GID_MIN=500 -K GID_MAX=700 mygroup # creates the group overriding /etc/login.defs values 
-----
+`userdel [options] <username>`
 
-== userdel
+Deletes a user from the computer. The command must be run as `sudo` for administrator access.
 
-`userdel` deletes a user account and related files.
+*Example:*
 
-[source, bash]
-----
-sudo userdel -f dev
+The following example uses the `userdel` command to remove the user with the login name `cooluser` from the system. The `-r` option indicates that the user's `HOME` directory is also to be deleted:
 
-sudo userdel -r newuser2 # user's home directory is removed
-----
+```
+$ sudo userdel -r cooluser
+```
+
+=== usermod
+
+`usermod [options] <username>`
+
+Modifies user account information and can be used to add a user to a group. The command must be run as `sudo` for administrator access.
+
+*Example:*
+
+The following example uses the command `usermod` to add a user with the login name `lennonjohn` to a group named `beatles`. Then, the command `groups` is used to verify that the user `lennonjohn` is indeed assigned to the group `beatles`:
+
+```
+$ sudo usermod -a -G beatles lennonjohn
+
+$ groups lennonjohn
+lennonjohn : lennonjohn beatles
+```
+
+=== groups
+
+`groups [options] <username>`
+
+Lists the groups to which a user belongs.
+
+*Example:*
+
+The following example uses the command `groups` to list the groups to which the user with the username `lennonjohn` belongs:
+
+```
+$ groups lennonjohn
+lennonjohn : lennonjohn beatles
+```
+
+=== gpasswd
+
+`gpasswd [options] <group>`
+
+The command `gpasswd` is used to manage the configuration of a group under the Linux operating system. The command must be run as `sudo` for administrator access.
+
+*Example:*
+
+The following example uses `gpasswd` to remove a user from a group. The `-d` option followed by the username indicates that the user is to be deleted:
+
+```
+$ sudo gpasswd -d jaggermick beatles
+Removing user jaggermick from group beatles
+```
+
+=== groupadd
+
+`groupadd [options] <groupname>`
+
+Adds a group to the computer. The command must be run as `sudo` for administrator access.
+
+*Example:*
+
+The following example uses the `groupadd` command to create a group named `beatles`.
+
+```
+$ sudo groupadd beatles
+```
+
+=== groupdel
+
+`groupdel [options] <groupname>`
+
+Deletes a group from the computer. The command must be run as `sudo` for administrator access.
+
+*Example:*
+
+The following example uses the command `groupdel` to delete the group named `beatles` from the system.
+
+```
+$ sudo groupdel beatles
+```
