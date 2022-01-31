@@ -3,12 +3,9 @@
 :product-name:
 :version: 1.0.0
 
-This cheat sheet presents a collection of Linux commands and executables typically used by developers who want to move beyond the basics of working with the Linux operating system. Some examples of basic operations are creating and deleting directories and files, navigating around the file system and installing applications. Examples of intermediate use involves managing processes, users and groups on a particular machine running under Linux as well as monitoring disk and network usage, to name a few.
-
-The commands are organized according to category.
+This cheat sheet presents a collection of Linux commands and executables typically used by developers who want to move beyond the basics of working with the Linux operating system. For the purpose of this cheat sheet, _intermediate use_ involves managing processes, users, and groups on a particular machine running under Linux, as well as monitoring disk and network usage. Commands in this cheat sheet are organized by category.
 
 == Console and output management commands
-
 
 Commands in this section apply to working in a terminal window console and output from a computer or virtual machine running the Linux operating system.
 
@@ -20,7 +17,7 @@ Displays a list of commands executed on the system. The `history` command can al
 
 *Example:*
 
-The following example uses the `history` command to show a list of command that have been executed on the system. The example pipes the result to the `more` command, which shows the first 15 lines of output using the `-15` option:
+The following example uses the `history` command to show a list of commands that have been executed on the system. The example pipes the result to the `more` command, which shows the first 15 lines of output using the `-15` option:
 
 ```
 $ history | more -15
@@ -46,7 +43,7 @@ $ history | more -15
 
 `more [options] </path/to/filename or stdout>`
 
-Allows a user to view and traverse the contents of a file or stdout. The `more` command invokes within a distinct command-line user interface. To exit the process, users strike the `q` key.
+Allows a user to view and traverse the contents of a file or stdout. The `more` command runs within its own command-line user interface. To exit the process, users strike the `q` key.
 
 *Examples:*
 
@@ -195,6 +192,8 @@ The following example creates a temporary alias for the `clear` command. The ali
 
 === awk
 
+`awk <processing instruction string>`
+
 Finds, filters, or replaces text in a file or from stdout.
 
 *Examples:*
@@ -237,7 +236,7 @@ The following example uses the `printf` command to create three files named `one
 
 The first invocation of `diff` compares the files `one.txt` and `two.txt`. The second invocation compares files `one.txt` to `three.txt`. 
 
-The first invocation reports that there is difference in `two.txt` and that the fourth line from the file `two.text` should be added (`a`) to the third line in `one.txt`. The value of the fourth line in `two.txt` is `Shemp`.
+The first invocation reports that there is a difference in `two.txt` and that the fourth line from the file `two.text` should be added (`a`) to the third line in `one.txt`. The value of the fourth line in `two.txt` is `Shemp`.
 
 The second invocation uses the `-s` option to display the report that indicates the files `one.txt` and `three.txt` are identical. If the `-s` option was not used, there would be no output to the console (by default, identical files are not reported in stdout):
 
@@ -264,8 +263,6 @@ Manipulates the content of a file or output sent to stdout.
 *Example:*
 
 The following example uses the `echo` command to send the string `Bobby is cool` to the `sed` command. The command `sed` uses the `s` subcommand to substitute the name `Teddy` where the name `Bobby` occurs. The output is then displayed:
-
-(`$` is the command-line prompt symbol.)
 
 ```
 $ echo Bobby is cool | sed 's/Bobby/Teddy/'
@@ -297,7 +294,6 @@ A program that queries for information about a particular Internet domain name.
 
 *Example:*
 
-
 The following example invokes `nslookup` against the domain name `developers.redhat.com`:
 
 ```
@@ -319,7 +315,6 @@ Name:	e40408.dsca.akamaiedge.net
 Address: 2600:1406:3400::6862:7543
 ```
 
-
 === traceroute
 
 `traceroute [options] <target address or domain_name>`
@@ -330,7 +325,7 @@ The program `traceroute` is not part of Red Hat Enterprise Linux (RHEL) by defau
 
 *Example:*
 
-The following example reports the route from the local machine to `redhat.com`. The `-m` option is used to limit the output to the first five hops:
+The following example reports the route from the local machine to `developers.redhat.com`. The `-m` option is used to limit the output to the first five hops:
 
 ```
 $ traceroute -m 5 developers.redhat.com
@@ -393,11 +388,11 @@ The following commands apply to working with users and groups as supported by th
 
 `users [options]`
 
-Displays the names of users logged into the computer.
+Displays the names of users logged in to the computer.
 
 *Example:*
 
-The following example uses the command `users` to list all users logged into the system:
+The following example uses the command `users` to list all users logged in to the system:
 
 ```
 $ users
