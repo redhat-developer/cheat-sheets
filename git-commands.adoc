@@ -43,6 +43,8 @@ The remote repository is the Git repository on the network that is the single so
                                                         ↑  ←  ←  ←  (pull)  ←   ←  ↲
 ----
 
+image::./images/git-workflow.png[] 
+
 === Branches
 
 Content in the remote repository can be broken into different paths of development through the concept of branches. The root branch is typically named `main`.
