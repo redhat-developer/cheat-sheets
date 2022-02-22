@@ -1,4 +1,4 @@
-= git Cheat Sheet
+= Git Cheat Sheet
 :experimental: true
 :product-name:
 :version: 1.0.0
@@ -7,7 +7,7 @@ Git is a version control system (also called a source control system) that allow
 
 == Git concepts and workflow
 
-Each user of Git maintains a separate repository (or multiple repositories) for working with the source code. The repository where the project was launched is considered the source of truth. A;; other users sync up with this remote repository, which can be hosted on a private network or by a public service provider such as GitHub, GitLab, or BitBucket.
+Each user of Git maintains a separate repository (or multiple repositories) for working with the source code. The repository where the project was launched is considered the source of truth. Other users sync up with this remote repository, which can be hosted on a private network or by a public service provider such as GitHub, GitLab, or BitBucket.
 
 There are formal processes for moving content to and from the remote repository. Each change goes through four phases before finally being stored in the remote repository. Each of these four phases has an associated location in which code is stored. These locations are:
 
@@ -43,7 +43,7 @@ The remote repository is the Git repository on the network that is the single so
                                                         ↑  ←  ←  ←  (pull)  ←   ←  ↲
 ----
 
-image::./images/git-workflow.png[] 
+image::../images/git-workflow.png[] 
 
 === Branches
 
