@@ -1,108 +1,907 @@
-= Podman
+= Podman Cheat Sheet
 :experimental: true
 :product-name:
 
-This cheat sheet covers the complete podman command set. 
-_container_ is either a container name or a container ID. 
-If _tag_ is omitted in _image:tag_, the default value is _latest_.
+This cheat sheet covers the command used for working with Podman.
 
-== Finding images
+As stated by Podman.io, _Podman is a daemonless, open source, Linux native tool designed to make it easy to find, run, build, share and deploy applications using Open Containers Initiative (OCI) Containers and Container Images._
 
-`podman images`:: List all local images
-`podman history _image:tag_`:: Display information about how an image was built
-`podman login _registryURL_ -u _username_ [-p _password_]`:: Log in to a remote registry
-`podman pull _registry/username/image:tag_`:: Pull an image from a remote registry
-`podman search _searchString_`:: 
-Search local cache and remote registries for images
+As stated above, Podman is daemonless. This means the Podman interacts directly with the various components in the Linux container ecosystem instead of relying on a continuously running daemon to intermediate between these components on a callers behalf. Podman does not run as root by default which reduces the potential for a security hazard.
 
-NOTE: The list of registries is defined in `/etc/containers/registries.conf`
+Also, Podman does *not* spawn containers as child processes thus making the containers it creates durable and independent of Podman.
 
-`podman logout`:: Log out of the current container registry
+== Working with image repositories
+
+The following sections describe the Podman commands for working with image repositories.
+
+=== podman images
+
+----
+podman images [options] 
+----
+
+Lists all local images
+
+*Example:*
+
+The following example lists all the container images stored on the local machine. Notice that the local machine has container images from two public container image repositories, `quay.io` and `docker.io`. (The `$` symbol represents the command line prompt.)
+
+----
+$ podman images
+REPOSITORY                      TAG         IMAGE ID      CREATED       SIZE
+quay.io/ansible/ansible-runner  latest      697a4af2d624  16 hours ago  738 MB
+docker.io/library/mysql         latest      6126b4587b1b  18 hours ago  525 MB
+docker.io/library/redis         latest      f1b6973564e9  4 weeks ago   116 MB
+docker.io/library/nginx         latest      c316d5a335a5  4 weeks ago   146 MB
+----
+
+=== podman rmi
+
+----
+podman rmi [-f] <container_image_name_or_image_uuid:tag>
+----
+
+Removes a local image from local cache. Use `-f`` to force removal. 
+
+*NOTE:* This command does not remove the image from the remote registry. 
+
+*Example:*
+
+The following example uses the command `podman rmi` to remove a container image with the UUID `c316d5a335a5` from the container image repository on the local computer.
+
+----
+$ podman rmi [-f] c316d5a335a5 
+----
+
+=== podman push
+
+----
+podman push <registry_url/username/image:tag>
+----
+
+Pushes a container image to a remote registry
+
+*Example:*
+
+The following use the command `podman build ` with tag `-t` to create a local container image with the name and tag, `quay.io/myrepo/customer_container:v1`. The result of `podman build` is shown in an abbreviated format. Then the command `podman images` lists the created container image. Finally, the command `podman push quay.io/myrepo/customer_container:v1` is used to push the container image to the remote repository, `quay.io`
+
+----
+$ podman build -t quay.io/myrepo/customer_container:v1 .
+.
+.
+Successfully tagged quay.io/myrepo/customer_container:v1
+Successfully tagged localhost/mynode:v1
+Successfully tagged localhost/mynode:best
+a6b028f25b45f533ae3078fe1d97df2a9cd27691e8d7b3317a0bdeaa24d1e705
+
+$ podman images
+REPOSITORY                                 TAG                       IMAGE ID      CREATED       SIZE
+quay.io/myrepo/customer_container          v1                        a6b028f25b45  4 days ago    1.02 GB
+
+$ podman push quay.io/myrepo/customer_container:v1
+----
+
+
+=== podman history 
+
+----
+podman history [options] <image:tag>
+----
+
+Displays historical information about a container image that has been download and stored on the local machine
+
+*Example:*
+
+The following example is an excerpt of output from using `podman history` to get the historical information for the container image the distributed tracing framework `zipkin` that was retrieved from the container image repository `quay.io`.
+
+----
+$ podman history quay.io/openzipkin/zipkin:latest
+ID            CREATED       CREATED BY                                     SIZE        COMMENT
+b9fb334d7cd1  2 years ago   /busybox/sh -c #(nop)  ENTRYPOINT ["/busyb...  0 B         
+<missing>     2 years ago   /busybox/sh -c #(nop)  EXPOSE 9410 9411        0 B         
+<missing>     2 years ago   /busybox/sh -c #(nop)  USER zipkin             0 B         
+<missing>     2 years ago   /busybox/sh -c ln -s /busybox/* /bin           197 kB      
+<missing>     2 years ago   /busybox/sh -c #(nop) WORKDIR /zipkin          0 B         
+.
+.
+.
+----
+
+=== podman login
+
+----
+podman login [options] <image_registry_url>
+----
+
+Logs a user in to a remote container image registry. After executing the command, the user will be prompted for a username and password
+
+*Example:*
+
+The following example uses `podman login` to login to the container image repository `quay.io`. Notice that after the command prompts for a Username and Password pair.
+
+----
+$ podman login quay.io
+Username: cooluser
+Password: 
+Login Succeeded!
+----
+
+=== podman logout
+
+----
+podman logout [options] 
+----
+
+Logs out of the current container registry
+
+*Example:*
+
+The following example logs the user out of the Quay container image repository. (The `$` symbol represents the command line prompt.)
+
+----
+$ podman logout quay.io
+Removed login credentials for quay.io
+----
+
+=== podman pull
+
+----
+podman pull [options] <remote_registry_url>/<username>/<image:tag>
+----
+
+Pulls an image from a remote registry
+
+*Example:*
+
+The following example demonstrates how to `podman pull` to retrieve the latest version of the container image for the tool `ansible-runner` from the container image repository at quay.io. 
+
+----
+$  podman pull quay.io/ansible/ansible-runner:latest
+----
+
+=== podman search
+----
+podman search [options] <search_string>
+----
+
+Will search container image registries according to those defined in the file `/etc/containers/registries.conf`. The following shows the entries in `/etc/containers/registries.conf` for defining the container image registries  to search.
+
+----
+[registries.search]
+registries = ["quay.io", "registry.fedoraproject.org", "registry.access.redhat.com", "registry.centos.org", "docker.io"]
+----
+
+*Example:*
+
+The following example uses `podman search` to find container image include the string `pinger`. The response in displayed in an abbreviated format.
+
+----
+$ podman search pinger
+INDEX       NAME                                    DESCRIPTION                                      STARS       OFFICIAL    AUTOMATED
+quay.io     quay.io/giantswarm/calico-ipip-pinger                                                    0                       
+quay.io     quay.io/dontpayfull/calico-ipip-pinger                                                   0                       
+quay.io     quay.io/zonggen/fcos-pinger-backend     Server image for telemetry service of FCOS (...  0                       
+quay.io     quay.io/ksemaev/pinger                                                                   0                       
+quay.io     quay.io/murph83/pinger                                                                   0                       
+quay.io     quay.io/sosivio/sosivio-node-pinger                                                      0                       
+quay.io     quay.io/sebv/pinger                                                                      0                       
+docker.io   docker.io/hosterping/pinger             Pinger v2 für Hoster-Ping.de                     0                       
+docker.io   docker.io/afrank/pinger                                                                  0                       
+docker.io   docker.io/subfuzion/pinger              Simple service that sends a pong response        0                       
+docker.io   docker.io/pingerua/samples                                                               0                       
+docker.io   docker.io/superbrilliant/pinger                                                          0                       
+docker.io   docker.io/reselbob/pinger               A simple utility web server image that outpu...  1                       
+----
 
 == Building images
 
-`podman build -t _image:tag_ .`:: Build and tag an image using the instructions in Dockerfile in the current directory (don’t forget the dot!)
-`podman build -t _image:tag_ -f _Dockerfile2_`:: Same as above, but with a different Dockerfile
-`podman tag _image:tag_ [_registry/username/_]_image:tag_`:: Tag an image 
+The following sections describe the various Podman commands for building container images
 
-== Running images
+=== podman build
 
-`podman run --rm -it [--name _name_] _image:tag command_`::
-Run a container based on a given image.
-[cols="25,75"]
-|===
+----
+podman build [options] <image:tag_> -f <Dockerfile_filepath_or_url>
+----
 
-|`--rm`
-|Remove the container after it exits
+Builds and tags an image using the instructions in Dockerfile. The location of the Dockerfile is defined by the `-f` option. If the `-f` option is omitted, use a period (`.`) to indicate that the Dockerfile is in the current directory. Once the container image is built it is stored in container image repository on the local machine.
 
-|`-it`
-| Connect the container to the terminal
+*Examples:*
 
-|`--name _name_`
-|Give the container a name
+The following example demonstrates how to use `podman build`` to create a container image using the default Dockerfile in the local directory. Then the command `podman images` is used to list the container images stored in the local repository. The output of the container image list is pipe to `grep` to filter out those container images that have the string `mynode`.
 
-|`_image:tag_`
-|The image used to create the container
+----
+$ podman build -t mynode:v1 .
+STEP 1/3: FROM node:latest
+STEP 2/3: CMD ["-v"]
+--> 959e797d01b
+STEP 3/3: ENTRYPOINT ["node"]
+COMMIT mynode:v1
+--> a6b028f25b4
+Successfully tagged localhost/mynode:v1
+a6b028f25b45f533ae3078fe1d97df2a9cd27691e8d7b3317a0bdeaa24d1e705
 
-|`command`
-| A command to run (`/bin/bash` for example)
-|===
+$ podman images | grep mynode
+localhost/mynode                v1          a6b028f25b45  About a minute ago  1.02 GB
+----
 
-.Other options
-****
-`-p _8080:32000_`:: Expose container port 8080 as localhost:32000
-`-v _/dev:/ldev_`:: Map the `/dev` directory on localhost to a volume named `/ldev` inside the container
-****
 
-`podman commit _container newImage:tag_`:: Create a new image based on the current state of a running container
-`podman ps`:: List all running containers
-`podman create [--name _name_] _image:tag_`:: Create (but don't start) a container from an image
-`podman start _container_`:: Start an existing container from an image
-`podman restart _container_`:: Restart an existing container
-`podman wait _container1_ [_container2..._]`:: Wait on one or more containers to stop
-`podman stop _container_`:: Stop a running container gracefully
-`podman kill _container_`:: Stop a running container immediately
-`podman rm [-f] _container_`:: Remove a container (use `-f` if the container is running)
-`podman stats [_container_]`:: Display a live stream of a container's resource usage (or all containers)
-`podman inspect _container_`:: Return metadata (in JSON) about a running container 
+The following example demonstrates how to use `podman build`` to create a container image using the file named `Otherdockerfile`
+
+----
+$ podman build -t othernode:v1 -f Otherdockerfile
+STEP 1/2: FROM node:latest
+STEP 2/2: RUN echo "The latest version of Node is installed"
+The latest version of Node is installed
+COMMIT othernode:v1
+--> 600590954fc
+Successfully tagged localhost/othernode:v1
+600590954fc5dff1d32ffda6bf34f07e674feee056183c8a7bfb726c3421b49e
+----
+
+=== podman tag
+
+----
+podman tag <image_name:tag> <image_name:new_tag>
+----
+
+or
+
+----
+podman tag <image_uuid> <image_name:new_tag>
+----
+
+Creates a new `image_name:tag` pair for an existing container image in the local repository.
+
+*Example:*
+
+The following example lists existing container images on the local machine and then executes `podman tag` against the image with the UUID `a6b028f25b45` applying the new tag `best`. The container images are listed again to show the added `image_name:tag`` pair.
+
+----
+$ podman images
+REPOSITORY                      TAG         IMAGE ID      CREATED         SIZE
+localhost/othernode             v1          600590954fc5  5 minutes ago   1.02 GB
+localhost/mynode                v1          a6b028f25b45  14 minutes ago  1.02 GB
+
+$ podman tag a6b028f25b45 mynode:best
+
+$ podman images
+REPOSITORY                      TAG         IMAGE ID      CREATED         SIZE
+localhost/othernode             v1          600590954fc5  6 minutes ago   1.02 GB
+localhost/mynode                v1          a6b028f25b45  15 minutes ago  1.02 GB
+localhost/mynode                best        a6b028f25b45  15 minutes ago  1.02 GB
+----
+
+
+== Working with containers
+
+The following sections describe the Podman commands for creating and running containers
+
+=== podman run
+
+----
+podman run [options] <repo/image_name:tag>
+----
+
+Runs a container based on a given `image:tag` pair. If the image exists on the local machine, that image will be used. Otherwise, `podman run` will attempt to get the container image from the remote repository that's defined/
+
+*Examples:*
+
+The following example runs a container using the latest version of the container image for the distributed tracing tool `zipkin` that stored in the `quay.io` container repository. The option `-d` is used to run the container in the background in order to free up the terminal window to accept future input. 
+
+Then, the command `podman ps -a` is executed to list the running containers. Notice that since the `zipkin` container was not assigned a name when created. Thus, the arbitrary name `laughing_mahavira` is assigned to the container. Also, notice that the result of executing `podman run` is the containers UUID.
+
+----
+$ podman run -d quay.io/openzipkin/zipkin 
+ea35aa9eda875dd0c3ea34beb6216cf1148725272f28829ea1d3ba262f9f2ada
+
+$ podman ps -a
+CONTAINER ID  IMAGE                             COMMAND     CREATED        STATUS            PORTS       NAMES
+ea35aa9eda87  quay.io/openzipkin/zipkin:latest              3 minutes ago  Up 3 minutes ago              laughing_mahavira
+----
+
+The following example creates and runs the container using the container image `ngnix:latest`` The `-d` option runs the container in the background. The `--name` option gives the container the name `mywebserver`.
+
+After the container is created, the command `podman ps -a` is executed to list the containers running on the local machine. Notice that the `nginx` container has the name `mywebserver`.
+
+----
+$ podman run -d --name mywebserver -it nginx:latest
+
+$ podman ps -a
+CONTAINER ID  IMAGE                             COMMAND               CREATED        STATUS            PORTS       NAMES
+ea35aa9eda87  quay.io/openzipkin/zipkin:latest                        6 minutes ago  Up 6 minutes ago              laughing_mahavira
+90ac3eb5f5a6  docker.io/library/nginx:latest    nginx -g daemon o...  4 seconds ago  Up 4 seconds ago              mywebserver
+----
+
+The following example creates and runs the container. The option `--rm` makes it so that the container is removed after it exits. After ` podman run` executes the command ` podman ps -a` lists the available containers. Notice that the nodejs container is not listed. This is because the `-rm` option was used. The `nodejs` container spun up and then because there was no activities for it to execute, it exited. Once the container exited, it was removed from the local machine.
+
+----
+$ podman run --rm quay.io/centos7/nodejs-14-centos7:latest
+
+$ podman ps -a
+CONTAINER ID  IMAGE                             COMMAND               CREATED         STATUS             PORTS       NAMES
+ea35aa9eda87  quay.io/openzipkin/zipkin:latest                        15 minutes ago  Up 15 minutes ago              laughing_mahavira
+90ac3eb5f5a6  docker.io/library/nginx:latest    nginx -g daemon o...  9 minutes ago   Up 9 minutes ago               mywebserve
+----
+
+The following example creates and runs the container using the `-it` options. The options `-it` makes it so a terminal and command prompt within the container is presented after the container gets up and running.
+
+----
+podman run -it nginx:latest 
+----
+
+The following example creates and runs the container using the `nginx:latest` image. Then after the container is up and running, the command `pwd` is executed against file system internal to the container to report present working directory. The symbol `$` represents the command line prompt. The result of the running the command follows. Notice that the present working directory is the root (`/`) directory.
+
+----
+$ podman run nginx:latest pwd
+/
+----
+
+=== podman stop
+
+----
+podman stop [options] <container_name_or_container_uuid>
+----
+
+Gracefully stops a container from running.
+
+*Example:*
+
+The following example lists all containers on the local machine using `podman ps -a`. Notice that the two container listed have a status of `Up ## minutes ago`. The command `podman stop` is then executed against the container that has the name `mywebserver`.
+
+The command podman ps -a` is called again. Both containers are listed but the container named `mywebserver` has a STATUS of `Exited (0) 3 seconds ago` which is the point in time when the command `podman stop` was called.
+
+----
+$ podman ps -a
+CONTAINER ID  IMAGE                             COMMAND               CREATED         STATUS             PORTS       NAMES
+ea35aa9eda87  quay.io/openzipkin/zipkin:latest                        27 minutes ago  Up 27 minutes ago              laughing_mahavira
+90ac3eb5f5a6  docker.io/library/nginx:latest    nginx -g daemon o...  21 minutes ago  Up 21 minutes ago              mywebserver
+
+$ podman stop mywebserver
+mywebserver
+
+$ podman ps -a
+CONTAINER ID  IMAGE                             COMMAND               CREATED         STATUS                    PORTS       NAMES
+ea35aa9eda87  quay.io/openzipkin/zipkin:latest                        28 minutes ago  Up 28 minutes ago                     laughing_mahavira
+90ac3eb5f5a6  docker.io/library/nginx:latest    nginx -g daemon o...  21 minutes ago  Exited (0) 3 seconds ago              mywebserver
+----
+
+=== podman start
+
+----
+podman start [options] <container_name_or_container_uuid>
+----
+
+Starts an existing container
+
+*Example:*
+
+The following example uses `podman ps -a` to list containers on the local machine. Notice that the container named `mywebserver` has a STATUS of `Exited (0) 3 seconds ago`. The container is stopped.
+
+Next the command `podman start mywebserver` to start the container up. Then, `podman ps -a` is executed again. Notice that the container named `mywebserver` now has a status of `Up 31 seconds ago`. The container has been started and is running.
+
+----
+$ podman ps -a
+CONTAINER ID  IMAGE                             COMMAND               CREATED         STATUS                    PORTS       NAMES
+ea35aa9eda87  quay.io/openzipkin/zipkin:latest                        28 minutes ago  Up 28 minutes ago                     laughing_mahavira
+90ac3eb5f5a6  docker.io/library/nginx:latest    nginx -g daemon o...  21 minutes ago  Exited (0) 3 seconds ago              mywebserver
+
+$ podman start mywebserver
+mywebserver
+
+$ podman ps -a
+CONTAINER ID  IMAGE                             COMMAND               CREATED         STATUS             PORTS       NAMES
+ea35aa9eda87  quay.io/openzipkin/zipkin:latest                        33 minutes ago  Up 33 minutes ago              laughing_mahavira
+90ac3eb5f5a6  docker.io/library/nginx:latest    nginx -g daemon o...  27 minutes ago  Up 31 seconds ago              mywebserver
+----
+
+The following examples uses `podman run` to run the container image `docker.io/library/nginx`. The `-d` option is used to run the container in the background. The `--name` is used to give the container the name `mywebserver`. The `-p` option is used to assign port number `8181` running under localhost on the local computer to the port number `80` which is the port number on which the nginx web server within the container is listening for income requests.
+
+----
+$ podman run --name mynginx -d -p 8181:80 docker.io/library/nginx 
+a4b59499314f7c4c6819340ec8e15732cb93c21c131fbd709e09370972fda1b7
+
+$ podman ps -a
+CONTAINER ID  IMAGE                           COMMAND               CREATED        STATUS            PORTS                 NAMES
+a4b59499314f  docker.io/library/nginx:latest  nginx -g daemon o...  8 seconds ago  Up 7 seconds ago  0.0.0.0:8181->80/tcp  mynginx
+----
+
+=== podman create
+
+----
+podman create [options] </repo/image_name:tag>
+----
+
+Creates a container from a container image but does not start it
+
+*Example:*
+
+----
+$ podman create --name myredis quay.io/quay/redis
+dcc2491a3d16809c5c7b939e48aa99ded40779cb79140b1b9ae8702561901952
+
+$ podman ps -a
+CONTAINER ID  IMAGE                      COMMAND          CREATED        STATUS      PORTS       NAMES
+dcc2491a3d16  quay.io/quay/redis:latest  conf/redis.conf  3 seconds ago  Created                 myredis
+----
+
+=== podman restart
+
+----
+podman restart [options] <container_name_or_container_uuid>
+----
+
+Restarts an existing container
+
+*Example:*
+
+The following example uses `podman ps -a` to list the containers installed on the host computer. Notice the `STATUS` of the container named `myredis` is `Created`. Then the command `podman restart` is used to start the container named `myredis`. Finally the command Finally `podman ps -a` is called again. Notice that the `STATUS` of the container is now `Up 8 seconds ago`, hence the container is running.
+
+----
+$ podman ps -a
+CONTAINER ID  IMAGE                                  COMMAND               CREATED       STATUS      PORTS              NAMES
+dcc2491a3d16  quay.io/quay/redis:latest              conf/redis.conf       22 hours ago  Created                        myredis
+
+$ podman restart  myredis
+
+$ podman ps -a
+CONTAINER ID  IMAGE                                  COMMAND               CREATED       STATUS            PORTS         NAMES
+dcc2491a3d16  quay.io/quay/redis:latest              conf/redis.conf       22 hours ago  Up 8 seconds ago                myredis
+
+----
+
+=== podman rm
+
+----
+podman rm [options] <container_name_or_container_uuid>
+----
+
+Removes a container from the host computer
+
+*Example:*
+
+The following example uses `podman ps -a` to list the containers installed on the host computer. Notice that the container named `myredis` is running. Then the command `podman rm` is used with the `-f` option to force the removal of the running container named `myredis`.
+
+Finally `podman ps -a` is called again. Notice that the container has been removed from the computer.
+
+----
+$ podman ps -a
+CONTAINER ID  IMAGE                                  COMMAND               CREATED       STATUS            PORTS         NAMES
+dcc2491a3d16  quay.io/quay/redis:latest              conf/redis.conf       22 hours ago  Up 8 seconds ago                myredis
+
+$ podman rm -f myredis
+dcc2491a3d16809c5c7b939e48aa99ded40779cb79140b1b9ae8702561901952
+
+$ podman ps -a
+CONTAINER ID  IMAGE                                   COMMAND               CREATED       STATUS      PORTS               NAMES
+----
+
+=== podman wait
+
+----
+podman wait [options] <container_to_wait_for>
+----
+
+Waits for a the container defined by `<container_to_wait_for>` to meet a condition. The default condition is `stopped`,
+
+*Example:*
+
+The following example uses the `podman ps -a` to list containers on the local computer. Then `podman wait` against the container with the UUID of `569ddc895737`. Command line activity halts until the container with the UUID `569ddc895737` stops.
+
+----
+$ podman ps -a
+CONTAINER ID  IMAGE                             COMMAND               CREATED         STATUS                PORTS                 NAMES
+a4b59499314f  docker.io/library/nginx:latest    nginx -g daemon o...  23 hours ago    Up About an hour ago  0.0.0.0:8181->80/tcp  mynginx
+569ddc895737  quay.io/openzipkin/zipkin:latest                        46 minutes ago  Up 44 minutes ago                           myzipkin
+
+$ podman wait 569ddc895737
+----
+
+=== podman stats
+
+----
+podman stats [options] <container_name_or_container_uuid>
+----
+
+Displays a live stream of a container's resource usage. If no container name or UUID is defined, `podman stats` displays a live stream of the stats for all container running as root. *Note:* The command  `podman stats` must be executed as `sudo` and will only show containers running with root privileges.
+
+*Example:*
+
+The follow example calls the command `podmam stats` as the root user. Since no container name or UUID is defined in the call, `podmam stats` shows the stats for all containers running as root on the local machine
+
+----
+sudo podmam stats
+
+ID            NAME        CPU %       MEM USAGE / LIMIT  MEM %       NET IO          BLOCK IO           PIDS        CPU TIME      AVG CPU %
+153aa53a52b9  rootnginx   --          2.044MB / 8.148GB  0.03%       698B / 2.574kB  8.192kB / 62.46kB  2           67.274094ms   1.02%
+f7ac2c719ff7  myredis     0.19%       7.631MB / 8.148GB  0.09%       978B / 7.474kB  -- / --            5           717.895399ms  0.14%
+----
+
+=== podman inspect
+
+----
+podman inspect [options] <container_name_or_container_uuid>
+----
+
+Returns metadata describing a running container. The default format for the metadata is JSON.
+
+*Example:*
+
+The following example uses `podman inspect` to inspect the container with the name `mynginx`. The result is piped to the `more` command with the `-10` option to display the first 10 lines of output from the `podman inspect`.
+
+----
+$ podman inspect mynginx | more -10
+[
+    {
+        "Id": "a4b59499314f7c4c6819340ec8e15732cb93c21c131fbd709e09370972fda1b7",
+        "Created": "2022-02-24T11:17:00.499462518-08:00",
+        "Path": "/docker-entrypoint.sh",
+        "Args": [
+            "nginx",
+            "-g",
+            "daemon off;"
+        ],
+--More--
+----
+
 
 == Working with container processes and resources
 
-`podman ps (--all)`:: Listing the running containers on the system
-`podman attach _container_`::
-Attach to a running container and view its output or control it + 
+The following sections describe the various Podman commands for working with containers and container images beyond creating, running and stopping containers.
+
+=== podman ps
+
+----
+podman ps [options]
+----
+
+Lists the containers on the system
+
+*Example:*
+
+The following uses `podman ps` with the `-a` option to show all containers on the local computer, including those that are running or in another state such `Created` or `Exited`.
+
+----
+$ podman ps -a
+CONTAINER ID  IMAGE                             COMMAND               CREATED         STATUS                      PORTS                 NAMES
+a4b59499314f  docker.io/library/nginx:latest    nginx -g daemon o...  23 hours ago    Up 22 minutes ago           0.0.0.0:8181->80/tcp  mynginx
+569ddc895737  quay.io/openzipkin/zipkin:latest                        38 seconds ago  Exited (143) 3 seconds ago                        myzipkin
+----
+
+=== podman commit 
+
+----
+podman commit [options] <container_name_or_container_uuid> <new_image_name:tag_name>
+----
+
+Creates a new container image based on the current state of a running container.
+
+*Example:*
+
+The following example uses `podman commit` to create a new container image named `yourzipkin` with the tag `test` from the running container named `myzipkin`.
+
+Then `podman images` is called to list the container images on the computer. Notice that the container image `localhost/yourzipkin:test` is listed.
+
+----
+$ podman commit myzipkin yourzipkin:test
+
+$ podman images
+REPOSITORY                                 TAG                       IMAGE ID      CREATED         SIZE
+localhost/yourzipkin                       test                      179d9b389a21  21 seconds ago  156 MB
+localhost/mynode                           v1                        a6b028f25b45  24 hours ago    1.02 GB
+----
+
+=== podman attach
+
+----
+podman attach [options] <container_name_or_container_uuid> <new_image_name:tag_name>
+----
+
+Attaches to a running container and views its output or control it + 
 kbd:[Ctrl+p] kbd:[Ctrl+q] detaches from the container but leaves it running. 
 
-`podman exec _container command_`:: Execute a command in a running container
-`podman top _container_`:: Display the running processes of a container
-`podman logs [-tail] _container_`:: Display the logs of a container
-`podman pause [_container_]`:: Pause all the processes in a container (or all containers)
-`podman unpause [_container_]`:: Unpause all processes in a container (or all containers) 
-`podman port _container_`:: List the port mappings from a container to localhost 
+*Example:*
+
+----
+$ podman attach myzipkin
+----
+
+=== podman exec
+
+----
+podman exec <container_name_or_container_uuid> <internal_command>
+----
+
+Executes a command in a running container 
+
+*Example:*
+
+The following example uses the command `podman exec` with the `-it` option to enter into the container named `myzipkin` and display a command prompt within the container by using the internal shell invoked by the command `sh`.
+
+----
+$ podman exec -it myzipkin sh
+~ $ ls
+BOOT-INF   META-INF   classpath  org        run.sh
+----
+
+=== podman top
+
+----
+podman top <container_name_or_container_uuid>
+----
+
+Displays the running processes of a container 
+
+*Example:*
+
+The following example uses the command `podman top` to display the processes along with the CPU utilization running within the container named `mynginx`.
+
+----
+$ podman top mynginx
+USER        PID         PPID        %CPU        ELAPSED           TTY         TIME        COMMAND
+root        1           0           0.000       29m55.560928305s  ?           0s          nginx: master process nginx -g daemon off; 
+nginx       23          1           0.000       29m54.561101763s  ?           0s          nginx: worker process 
+----
+
+=== podman logs
+
+----
+podman logs [options] <container_name_or_container_uuid>
+----
+
+Displays the logs of a container as defined by `<container_name_or_container_uuid>`
+
+*Example:*
+
+The following example uses the command `podman logs` to display logs information about the container named `mynginx`. The `-t` option is used to display the timestamp for each log entry.
+
+----
+$ podman logs -t mynginx
+2022-02-25T09:37:46.090921000-08:00 /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+2022-02-25T09:37:46.091742000-08:00 /docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+2022-02-25T09:37:46.104675000-08:00 /docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+2022-02-25T09:37:46.180498000-08:00 10-listen-on-ipv6-by-default.sh: info: IPv6 listen already enabled
+2022-02-25T09:37:46.181151000-08:00 /docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+2022-02-25T09:37:46.223979000-08:00 /docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+2022-02-25T09:37:46.232448000-08:00 /docker-entrypoint.sh: Configuration complete; ready for start up
+2022-02-25T09:37:46.361178000-08:00 2022/02/25 17:37:46 [notice] 1#1: using the "epoll" event method
+2022-02-25T09:37:46.361275000-08:00 2022/02/25 17:37:46 [notice] 1#1: nginx/1.21.6
+2022-02-25T09:37:46.361323000-08:00 2022/02/25 17:37:46 [notice] 1#1: built by gcc 10.2.1 20210110 (Debian 10.2.1-6) 
+2022-02-25T09:37:46.361362000-08:00 2022/02/25 17:37:46 [notice] 1#1: OS: Linux 4.18.0-348.el8.x86_64
+2022-02-25T09:37:46.361397000-08:00 2022/02/25 17:37:46 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 262144:262144
+2022-02-25T09:37:46.361434000-08:00 2022/02/25 17:37:46 [notice] 1#1: start worker processes
+2022-02-25T09:37:46.361470000-08:00 2022/02/25 17:37:46 [notice] 1#1: start worker process 23
+----
+
+=== podman pause
+
+----
+podman pause [options] <container_name_or_container_uuid>
+----
+
+Pauses all the processes in a container (or all containers). The command can only be run against containers that have root privileges.
+
+*Example:*
+
+The following example use the command `sudo podman pause` to pause the container named `rootnginx`. Notice that the command is run using the `sudo` command because the container named `rootnginx` has root privileges.
+
+----
+$ sudo podman pause rootnginx
+153aa53a52b93a480deab0f781d4a2b851ab8559d72c033c875f534af5e282f8
+$ sudo podman ps -a
+CONTAINER ID  IMAGE                           COMMAND               CREATED         STATUS             PORTS       NAMES
+f7ac2c719ff7  docker.io/library/redis:latest  redis-server          36 minutes ago  Up 36 minutes ago              myredis
+153aa53a52b9  quay.io/bitnami/nginx:latest    nginx -g daemon o...  30 minutes ago  paused                         rootnginx
+----
+
+=== podman unpause
+
+----
+podman unpause [options] <container_name_or_container_uuid>
+----
+
+Unpauses all processes in a container (or all containers).  The command can only be run against containers that have root privileges.
+
+*Example:*
+
+The following example uses the command `podman unpause` to get the container named `rootnginx` running from a paused state. Notice that the command is run using the `sudo` command because the container named `rootnginx` has root privileges.
+
+----
+$ sudo podman unpause rootnginx
+153aa53a52b93a480deab0f781d4a2b851ab8559d72c033c875f534af5e282f8
+$ sudo podman ps -a
+CONTAINER ID  IMAGE                           COMMAND               CREATED         STATUS             PORTS       NAMES
+f7ac2c719ff7  docker.io/library/redis:latest  redis-server          37 minutes ago  Up 37 minutes ago              myredis
+153aa53a52b9  quay.io/bitnami/nginx:latest    nginx -g daemon o...  30 minutes ago  Up 30 minutes ago              rootnginx
+----
+
+=== podman port
+
+----
+podman port [options] <container_name_or_container_uuid>
+----
+
+Lists the port mappings from a container to localhost 
+
+*Example:*
+
+The following example uses the command `podman port` to report the port binding for the container named `mynginx`.
+
+----
+$ podman port mynginx
+80/tcp -> 0.0.0.0:8181
+----
 
 == Working with a container's filesystem
 
-`podman diff _container_`:: Display all the changes to a container’s filesystem
-Copy files and folders between a container and localhost:: 
-Use `podman mount`, copy files with `cp` or any Linux tool you like (`tar` or `dnf`, for example), then use `podman umount`
-`podman mount _container_`:: Mount a container’s root filesystem
-`podman umount _container_`:: Unmount a container’s root filesystem
-`podman import _tarball_`:: Import a tarball and save it as a filesystem image
-`podman export [-o _outputFile_] _container_`:: Export the container’s filesystem to a tar file
-`podman save [-o _archiveFile_] [--format _docker-archive_ | _oci-archive_ | _oci-dir_ | _docker-dir_] _image:tag_`:: 
-Save an image in docker-archive (default) or another format
-`podman load -i _archiveFile_`:: Load a saved image from docker-archive or another format 
+The sections describe the Podman commands for working a containers in terms of the host computers file system.
 
-== Sharing images
+=== podman diff
 
-`podman push [_registry/username/_]_image:tag_`:: Push an image to a remote registry
-`podman rmi [-f] _image:tag_`:: Remove a local image from local cache (use -f to force removal)  
-`podman rmi [-f] [_registry/username/_]_image:tag_`:: 
-Remove a remote image from local cache (use -f to force removal)
+----
+podman diff [options] <container_name_or_container_uuid>
+----
 
-NOTE: This does not remove the image from the remote registry. 
+Displays all the changes to a container’s filesystem.
+
+*Example:*
+
+The following examples uses the `podman diff` command to report how the files and directories on the host operating system have been affected when running the container named `mynginx`. The letter `C` indicates the the file or directory has been changed. The letter `A` indicates that the file or directory has been added.
+
+----
+$ podman diff mynginx
+C /etc
+C /etc/nginx
+C /etc/nginx/conf.d
+C /etc/nginx/conf.d/default.conf
+A /run/nginx.pid
+C /var
+C /var/cache
+C /var/cache/nginx
+A /var/cache/nginx/client_temp
+A /var/cache/nginx/fastcgi_temp
+A /var/cache/nginx/proxy_temp
+A /var/cache/nginx/scgi_temp
+A /var/cache/nginx/uwsgi_temp
+----
+
+=== podman mount
+
+----
+podman mount [options] <container_name_or_container_uuid>
+----
+
+Mounts and reports the location of a container's filesystem on the host computer. This command is useful to inspect the filesystem of a container without having to `podman exec -it` into the running container.
+
+*Example:*
+
+The following example uses the command `sudo podman ps -a` to list the containers running as root on the local computer. Then the command `sudo podman mount` is called on the running container named `myredis`. The result of calling `sudo podman mount` is the directory where the container's files are located. Finally, `sudo ls` is called on the container's directory is called. Notice that the filesystem has the root directories of a Linux computer running Redis.  Notice that the command must be run as `sudo`.
+
+----
+$ sudo podman ps -a
+CONTAINER ID  IMAGE                           COMMAND               CREATED        STATUS            PORTS       NAMES
+f7ac2c719ff7  docker.io/library/redis:latest  redis-server          3 days ago     Created                       myredis
+
+$ sudo podman mount myredis
+/var/lib/containers/storage/overlay/b4f1aaed89bc56ab7b6b63fc6124623036497619cc9f7392bfb529bf1f38ba45/merged
+
+$ sudo ls /var/lib/containers/storage/overlay/b4f1aaed89bc56ab7b6b63fc6124623036497619cc9f7392bfb529bf1f38ba45/merged
+bin  boot  data  dev  etc  home  lib  lib64  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+----
+
+=== podman umount
+
+----
+podman umount [options] <container_name_or_container_uuid>
+----
+
+Unmounts a container's root filesystem
+
+*Example:*
+
+The following command runs `sudo podman unmount` against a container named `myredis`. Notice that the command must be run as `sudo`.
+----
+$ sudo podman unmount myredis
+myredis
+----
+
+=== podman export
+
+----
+podman export -o <output_filename> <container_name_or_container_uuid>
+----
+
+Exports a container's filesystem to a `.tar` file
+
+*Example:*
+
+The following example uses the command `podman ps -a` to list the containers running on the local computer. Then the command `podman export` is used to export the filesystem of the container named `mynginx` to a `.tar` file named `mynginx.tar`. Finally the command `ls -lh` is called to describe the details of the `.tar` file.
+
+----
+$ podman ps -a
+CONTAINER ID  IMAGE                             COMMAND               CREATED     STATUS             PORTS                 NAMES
+a4b59499314f  docker.io/library/nginx:latest    nginx -g daemon o...  3 days ago  Up 50 minutes ago  0.0.0.0:8181->80/tcp  mynginx
+
+$ podman export mynginx > mynginx.tar
+
+$ ls -lh
+total 138M
+-rw-rw-r--. 1 guest guest 138M Feb 28 09:44 mynginx.tar
+----
+
+=== podman import
+
+----
+podman import <tarball_filename>
+----
+
+Imports a tarball as defined by the parameter <tarball_filename> and saves it as a filesystem image
+
+*Example:*
+
+The following example creates a container image from an existing `.tar` file named `mynginx.tar`. The example uses the command `podman import` to important the file named `mynginx.tar`. The command creates a container image named `new-nginx` with the tag `v1`. Finally the command `podman images` is called to list the container image that was created.
+
+----
+$ podman import mynginx.tar new-nginx:v1
+Getting image source signatures
+Copying blob 51ae4d2a0ffb done  
+Copying config 8d555a4dac done  
+Writing manifest to image destination
+Storing signatures
+sha256:8d555a4dac4bdeb2840ca21a1540e4e736c5c5ee65d1b3e18f3dd81a913b133d
+
+$ podman images
+REPOSITORY           TAG         IMAGE ID      CREATED         SIZE
+localhost/new-nginx  v1          ad3620ffa74c  41 minutes ago  144 MB
+----
 
 == Miscellaneous
+The following sections describe commands for discovering version and other information about podman
 
-`podman version`:: Display podman version information
-`podman info`:: Display information about the podman environment
+=== podman version
+
+----
+podman version 
+----
+
+Reports information about the installed version of Podman
+
+*Example:*
+
+The following example uses `podman version` to show information about the installed version of Podman.
+
+----
+$ podman version 
+Version:      3.4.2
+API Version:  3.4.2
+Go Version:   go1.16.7
+Built:        Thu Jan 13 02:15:49 2022
+OS/Arch:      linux/amd64
+----
+
+=== podman info
+
+----
+podman info 
+----
+
+Displays information about the instance of Podman installed on the local computer
+
+*Example:*
+
+The following example uses `podman info` to display information about the instance of Podman installed on the local computer. The output is piped to the `more` command using the `-10` option to show the first 10 lines of output.
+
+----
+$ podman info | more -10
+host:
+  arch: amd64
+  buildahVersion: 1.23.1
+  cgroupControllers: []
+  cgroupManager: cgroupfs
+  cgroupVersion: v1
+  conmon:
+    package: conmon-2.0.32-1.module+el8.5.0+13852+150547f7.x86_64
+    path: /usr/bin/conmon
+    version: 'conmon version 2.0.32, commit: 4b12bce835c3f8acc006a43620dd955a6a73bae0'
+--More--
+----
+ 
