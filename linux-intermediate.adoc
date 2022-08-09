@@ -7,7 +7,7 @@ This cheat sheet presents a collection of Linux commands and executables typical
 
 == Console and output management commands
 
-Commands in this section apply to working in a terminal window console and output from a computer or virtual machine running the Linux operating system.
+Commands in this section apply to working in a terminal window console and illustrate output from a computer or virtual machine running the Linux operating system.
 
 === history
 
@@ -43,7 +43,7 @@ $ history | more -15
 
 `more [options] </path/to/filename or stdout>`
 
-Allows a user to view and traverse the contents of a file or stdout. The `more` command runs within its own command-line user interface. To exit the process, users strike the `q` key.
+Allows a user to view and traverse the contents of a file or stdout. The `more` command runs within its own command-line user interface. To exit the process, press the `q` key.
 
 *Examples:*
 
@@ -277,7 +277,7 @@ Commands in this section apply to working with networks on and from a Linux comp
 
 `hostname`
 
-Reports the hostname of the local computer.
+Reports the local computer's host name.
 
 *Example:*
 
@@ -373,7 +373,7 @@ The command `uname` reports system information about the local computer.
 
 *Example:*
 
-The following example uses the `-a` option with `uname` to report all the system information about the local computer:
+The following example uses the `-a` option with `uname` to report all system information about the local computer:
 
 ```
 $ uname -a
@@ -392,7 +392,7 @@ Displays the names of users logged in to the computer.
 
 *Example:*
 
-The following example uses the command `users` to list all users logged in to the system:
+The following example uses the command `users` to list all users logged into the system:
 
 ```
 $ users
@@ -502,7 +502,7 @@ Deletes a group from the computer. The command must be run as `sudo` for adminis
 
 *Example:*
 
-The following example uses the command `groupdel` to delete the group named `beatles` from the system.
+The following example uses the command `groupdel` to delete the group named `beatles` from the system:
 
 ```
 $ sudo groupdel beatles

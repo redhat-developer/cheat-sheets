@@ -1,0 +1,924 @@
+= dnf Cheat Sheet
+:experimental: true
+:product-name:
+:version: 1.0.0
+
+The cheat sheet describes the various ways the command `dnf` can be used to install and inspect applications running on the Red Hat Enterprise Linux, CentOS and Fedora operating systems. The term `dnf` is an abbreviation for *Dandified yum*. You can think of `dnf` as the next generation of the yum package manager.
+
+The general usage for `dnf` is
+
+----
+dnf [options] <command> <subcommand>
+----
+
+== Module exploration commands
+
+The following sections show how to use `dnf module` to get information about various RHEL modules.
+
+=== dnf module info
+
+----
+dnf module info <module_name>
+----
+
+Gets the details about a module
+
+*Example:*
+
+The following example shows the details of the module `cri-o` which is a Linux container manager.
+
+----
+$ dnf module info cri-o
+Not root, Subscription Management repositories not updated
+Last metadata expiration check: 0:00:16 ago on Thu 27 Jan 2022 11:24:52 AM PST.
+Name             : cri-o
+Stream           : 1.21
+Version          : 820210916195922
+Context          : 9edba152
+Architecture     : x86_64
+Profiles         : default [d]
+Default profiles : default
+Repo             : epel-modular
+Summary          : Kubernetes Container Runtime Interface for OCI-based containers
+Description      : CRI-O is the Kubernetes Container Runtime Interface for OCI-based containers.
+Requires         : platform:[el8]
+Artifacts        : cri-o-0:1.21.3-1.module_el8+12969+ebff6d46.src
+                 : cri-o-0:1.21.3-1.module_el8+12969+ebff6d46.x86_64
+                 : cri-o-debuginfo-0:1.21.3-1.module_el8+12969+ebff6d46.x86_64
+                 : cri-o-debugsource-0:1.21.3-1.module_el8+12969+ebff6d46.x86_64
+                 : cri-tools-0:1.19.0-1.module_el8+12969+ebff6d46.src
+                 : cri-tools-0:1.19.0-1.module_el8+12969+ebff6d46.x86_64
+                 : cri-tools-debuginfo-0:1.19.0-1.module_el8+12969+ebff6d46.x86_64
+                 : cri-tools-debugsource-0:1.19.0-1.module_el8+12969+ebff6d46.x86_64
+
+Hint: [d]efault, [e]nabled, [x]disabled, [i]nstalled, [a]ctive
+----
+
+=== dnf module list
+
+`dnf module [options] list <module_name>`
+
+Reports the status of RHEL modules available from a remote RHEL repository or downloaded to the local computer. The command is used with the following options filter the list accordingly:app-name: 
+
+* `--all` Lists all packages, present on the system, in a repository or both
+* `--installed` Lists packages installed on the system.
+* `--available` Lists available packages.
+* `--extras` Lists extras, that is packages installed on the system that are not available in any known repository.
+* `--obsoletes` Lists packages installed on the system that are deemed obsolete in any known repository.
+* `--recent` Lists packages recently added into the repositories.
+* `--upgrades` Lists upgrades available for the installed packages.
+* `--autoremove` Lists packages which will be removed when the command `dnf autoremove` is run.
+
+When the command is run as `sudo` the repository reference on the local machine will be updated.
+
+*Example:*
+
+The following example uses the `dnf module list` with the --all option to show all modules remote and local. The list is long, thus the result is piped to the `more` command to abbreviate the output. The `more` command uses the `-30` option to initially show the first 30 lines of output.
+
+----
+$ sudo dnf module list --all | more -30
+Updating Subscription Management repositories.
+Last metadata expiration check: 4:15:49 ago on Wed 02 Feb 2022 05:08:48 AM PST.
+Extra Packages for Enterprise Linux Modular 8 - x86_64
+Name                 Stream           Profiles                                 Summary                                                                                                                                   
+                                                                                       
+389-directory-server next             default, minimal                         389 Directory Server                                                                                                                      
+                                                                                       
+389-directory-server stable           default [d], legacy, minimal             389 Directory Server                                                                                                                      
+                                                                                       
+389-directory-server testing          default [d], legacy, minimal             389 Directory Server                                                                                                                      
+                                                                                       
+avocado              latest           default, minimal                         Framework with tools and libraries for Automated Testing                                                                                  
+                                                                                       
+avocado              82lts            default, minimal                         Framework with tools and libraries for Automated Testing                                                                                  
+                                                                                       
+avocado-vt           latest           default                                  Avocado Virt Test Plugin                                                                                                                  
+                                                                                       
+cobbler              3                default [d]                              Versatile Linux deployment server                                                                                                         
+                                                                                       
+cri-o                1.21             default [d]                              Kubernetes Container Runtime Interface for OCI-based containers                                                                           
+                                                                                       
+dwm                  latest           default, user                            Dynamic window manager for X                                                                                                              
+                                                                                       
+ghc                  8.2              default [d], minimal, small              Haskell GHC 8.2                                                                                                                           
+                                                                                       
+ghc                  8.4              default [d], minimal, small              Haskell GHC 8.4                                                                                                                           
+                                                                                       
+libuv                epel8-buildroot  devel [d]                                libuv-devel for EPEL 8                                                                                                                    
+                                                                                       
+nextcloud            nextcloud-stable default, testing                         A private file sync and share server - Stable branch                                                                                      
+--More--
+----
+
+=== dnf module provides
+
+----
+dnf module provides <provide-spec>
+----
+
+Describes the repository(s) that provides a module according to the `provide-spec`. The `provide-spec` can specify a module name, a module's filepath or a module according to version.
+
+*Example:*
+
+The following example uses the `dnf provides` to discover which repositories – local and remote – provide the module `gzip`.
+
+----
+$ sudo dnf provides /usr/bin/gzip
+Updating Subscription Management repositories.
+Last metadata expiration check: 3:20:01 ago on Wed 02 Feb 2022 05:08:48 AM PST.
+gzip-1.9-4.el8.x86_64 : The GNU data compression program
+Repo        : rhel-8-for-x86_64-baseos-rpms
+Matched from:
+Filename    : /usr/bin/gzip
+
+gzip-1.9-9.el8.x86_64 : The GNU data compression program
+Repo        : rhel-8-for-x86_64-baseos-rpms
+Matched from:
+Filename    : /usr/bin/gzip
+
+gzip-1.9-12.el8.x86_64 : The GNU data compression program
+Repo        : @System
+Matched from:
+Filename    : /usr/bin/gzip
+
+gzip-1.9-12.el8.x86_64 : The GNU data compression program
+Repo        : rhel-8-for-x86_64-baseos-rpms
+Matched from:
+Filename    : /usr/bin/gzip.
+----
+
+== General dnf commands
+
+The following sections show dnf command that can be used to search for modules, learn the details about a module, or install a module.
+
+=== dnf search 
+
+----
+dnf [options] search <search_string>
+----
+
+Searches for package according to the `search_string`
+
+*Example:*
+
+The following exampls uses the `dnf search` to search for packages according to the search string criteria `perl-MAIL`.
+
+----
+$ sudo dnf search perl-MAIL
+Updating Subscription Management repositories.
+Last metadata expiration check: 3:35:27 ago on Wed 02 Feb 2022 05:08:48 AM PST.
+========================== Name Matched: perl-MAIL ==============================
+perl-Mail-Box.noarch : Manage a mailbox, a folder with messages
+perl-Mail-DKIM.noarch : Sign and verify Internet mail with DKIM/DomainKey signatures
+perl-Mail-IMAPClient.noarch : An IMAP Client API
+perl-Mail-Message.noarch : MIME message handling
+perl-Mail-RFC822-Address.noarch : Perl extension for validating email addresses according to RFC822
+perl-Mail-SPF.noarch : Object-oriented implementation of Sender Policy Framework
+perl-Mail-SPF_XS.x86_64 : An XS implementation of Mail::SPF
+perl-Mail-Sender.noarch : Module for sending mails with attachments through an SMTP server
+perl-Mail-Sendmail.noarch : Simple platform independent mailer for Perl
+perl-Mail-Transport.noarch : Email message exchange
+perl-MailTools.noarch : Various ancient mail-related perl modules
+----
+
+=== dnf info 
+
+Displays details about a module
+
+----
+dnf info <module-name>
+----
+
+*Example:*
+
+The following example uses the command `dnf info` to display the details about the `dotnet`  module.
+
+----
+$ dnf info dotnet
+Not root, Subscription Management repositories not updated
+Last metadata expiration check: 0:41:52 ago on Tue 01 Feb 2022 09:19:22 AM PST.
+Installed Packages
+Name         : dotnet
+Version      : 6.0.101
+Release      : 2.el8_5
+Architecture : x86_64
+Size         : 0.0  
+Source       : dotnet6.0-6.0.101-2.el8_5.src.rpm
+Repository   : @System
+From repo    : rhel-8-for-x86_64-appstream-rpms
+Summary      : .NET CLI tools and runtime
+URL          : https://github.com/dotnet/
+License      : MIT and ASL 2.0 and BSD and LGPLv2+ and CC-BY and CC0 and MS-PL and EPL-1.0 and GPL+ and GPLv2 and ISC and OFL and zlib
+Description  : .NET is a fast, lightweight and modular platform for creating
+             : cross platform applications that work on Linux, macOS and Windows.
+             : 
+             : It particularly focuses on creating console applications, web
+             : applications and micro-services.
+             : 
+             : .NET contains a runtime conforming to .NET Standards a set of
+             : framework libraries, an SDK containing compilers and a 'dotnet'
+             : application to drive everything.
+----
+
+
+=== dnf install
+
+----
+dnf install [options] <package_name>
+----
+
+Installs an application package on the local machine.
+
+*Example:*
+
+The following installs the`perl` programming language from the local computer. The command uses the `-y` option to suppress the prompt asking the user for permission to proceed.
+
+The command produces too much screen output to show. 
+
+----
+sudo dnf install -y perl
+----
+
+=== dnf update
+
+----
+dnf update [options] <package_name>
+----
+
+Updates an application package on the local machine.
+
+*Example:*
+
+The following installs the`perl` programming language from the local computer. The command uses the `-y` option to suppress the prompt asking the user for permission to proceed.
+
+----
+$ sudo dnf update -y perl
+Updating Subscription Management repositories.
+Last metadata expiration check: 2:58:35 ago on Thu 27 Jan 2022 08:48:07 AM PST.
+Dependencies resolved.
+Nothing to do.
+Complete!
+----
+
+----
+sudo dnf update -y perl
+----
+
+=== dnf remove
+
+----
+dnf remove [options] <package_name>
+----
+
+Removes an application package on the local machine.
+
+*Example:*
+
+The following removes the application `podman` the local computer. The command uses the `-y` option to allow installation to proceed without user confirmation.
+
+----
+$ sudo dnf remove  -y podman
+Updating Subscription Management repositories.
+Dependencies resolved.
+===================================================================================================================================
+ Package                      Architecture   Version                                    Repository                           Size
+===================================================================================================================================
+Removing:
+ podman                        x86_64        1:3.4.2-9.module+el8.5.0+13852+150547f7     @rhel-8-for-x86_64-appstream-rpms   48 M
+Removing dependent packages:
+ cockpit-podman                noarch        33-1.module+el8.5.0+12582+56d94c81          @AppStream                          438 k
+Removing unused dependencies:
+ conmon                        x86_64        2:2.0.29-1.module+el8.5.0+12582+56d94c81    @AppStream                          164 k
+ podman-catatonit              x86_64        1:3.4.2-9.module+el8.5.0+13852+150547f7     @rhel-8-for-x86_64-appstream-rpms   764 k
+
+Transaction Summary
+===================================================================================================================================
+Remove  4 Packages
+
+Freed space: 50 M
+Running transaction check
+Transaction check succeeded.
+Running transaction test
+Transaction test succeeded.
+Running transaction
+  Preparing        :                                                                        1/1 
+  Running scriptlet: cockpit-podman-33-1.module+el8.5.0+12582+56d94c81.noarch               1/1 
+  Erasing          : cockpit-podman-33-1.module+el8.5.0+12582+56d94c81.noarch               1/4 
+  Erasing          : podman-1:3.4.2-9.module+el8.5.0+13852+150547f7.x86_64                  2/4 
+  Running scriptlet: podman-1:3.4.2-9.module+el8.5.0+13852+150547f7.x86_64                  2/4 
+  Erasing          : podman-catatonit-1:3.4.2-9.module+el8.5.0+13852+150547f7.x86_64        3/4 
+  Erasing          : conmon-2:2.0.29-1.module+el8.5.0+12582+56d94c81.x86_64                 4/4 
+  Running scriptlet: conmon-2:2.0.29-1.module+el8.5.0+12582+56d94c81.x86_64                 4/4 
+  Verifying        : cockpit-podman-33-1.module+el8.5.0+12582+56d94c81.noarch               1/4 
+  Verifying        : conmon-2:2.0.29-1.module+el8.5.0+12582+56d94c81.x86_64                 2/4 
+  Verifying        : podman-1:3.4.2-9.module+el8.5.0+13852+150547f7.x86_64                  3/4 
+  Verifying        : podman-catatonit-1:3.4.2-9.module+el8.5.0+13852+150547f7.x86_64        4/4 
+Installed products updated.
+
+Removed:
+  cockpit-podman-33-1.module+el8.5.0+12582+56d94c81.noarch conmon-2:2.0.29-1.module+el8.5.0+12582+56d94c81.x86_64
+  podman-1:3.4.2-9.module+el8.5.0+13852+150547f7.x86_64  podman-catatonit-1:3.4.2-9.module+el8.5.0+13852+150547f7.x86_64              
+
+Complete!
+----
+
+=== dnf history
+
+----
+dnf [options] history <subcommand> <subcommand> ....
+----
+
+Shows the history of dnf module transactions (commands) executed on a system.
+
+*Examples:*
+
+The following command uses the `dnf history` to report module actions
+
+----
+$ sudo dnf history
+Updating Subscription Management repositories.
+ID     | Command line                        | Date and time    | Action(s)      | Altered
+-----------------------------------------------------------------------------------------
+    14 | install dotnet                      | 2022-02-01 09:54 | Install        |   12   
+    13 | remove ant                          | 2022-02-01 09:37 | Removed        |    6   
+    12 | install ant                         | 2022-02-01 09:36 | Install        |    6   
+    11 | module install scala:2.10           | 2022-02-01 09:24 | Install        |   11   
+    10 | remove -y perl                      | 2022-01-27 11:47 | Removed        |  113   
+     9 | install perl                        | 2022-01-27 11:42 | Install        |  113   
+     8 | history undo last                   | 2022-01-26 09:23 | Removed        |   12   
+     7 | install dotnet                      | 2022-01-26 08:34 | Install        |   12   
+     6 | install ufw                         | 2022-01-24 09:15 | Install        |    1   
+     5 | install https://dl.fedoraproj...    | 2022-01-24 09:15 | Install        |    1   
+     4 | install traceroute                  | 2022-01-20 11:51 | Install        |    1   
+     3 | install iotop                       | 2022-01-19 09:57 | Install        |    1   
+     2 | -y install httpd mariadb-server     | 2022-01-14 10:04 | Install        |   19   
+     1 |       
+----
+
+The following example uses the `sudo dnf history undo last` command to undo the last module action which in this case is the undoing of the installation of the `dotnet` module. The example shows a portion of the screen output.
+
+----
+$ sudo dnf history undo last
+Updating Subscription Management repositories.
+Last metadata expiration check: 3:47:28 ago on Wed 02 Feb 2022 05:08:48 AM PST.
+Dependencies resolved.
+===========================================================================================================================
+ Package                            Architecture       Version             Repository                          Size
+===========================================================================================================================
+Removing:
+ dotnet                              x86_64            6.0.101-2.el8_5     @rhel-8-for-x86_64-appstream-rpms   0  
+Removing dependent packages:
+ aspnetcore-runtime-6.0              x86_64        6.0.1-2.el8_5           @rhel-8-for-x86_64-appstream-rpms   21 M
+ aspnetcore-targeting-pack-6.0       x86_64        6.0.1-2.el8_5           @rhel-8-for-x86_64-appstream-rpms   13 M
+ dotnet-apphost-pack-6.0             x86_64        6.0.1-2.el8_5           @rhel-8-for-x86_64-appstream-rpms   11 M
+ dotnet-host                         x86_64        6.0.1-2.el8_5           @rhel-8-for-x86_64-appstream-rpms   200 k
+ dotnet-hostfxr-6.0                  x86_64        6.0.1-2.el8_5           @rhel-8-for-x86_64-appstream-rpms   345 k
+ dotnet-runtime-6.0                  x86_64        6.0.1-2.el8_5           @rhel-8-for-x86_64-appstream-rpms   65 M
+ dotnet-sdk-6.0                      x86_64        6.0.101-2.el8_5         @rhel-8-for-x86_64-appstream-rpms   268 M
+ dotnet-targeting-pack-6.0           x86_64        6.0.1-2.el8_5           @rhel-8-for-x86_64-appstream-rpms   26 M
+ dotnet-templates-6.0                x86_64        6.0.101-2.el8_5         @rhel-8-for-x86_64-appstream-rpms   6.2 M
+ lttng-ust                           x86_64        2.8.1-11.el8            @rhel-8-for-x86_64-appstream-rpms   1.1 M
+ netstandard-targeting-pack-2.1      x86_64        6.0.101-2.el8_5         @rhel-8-for-x86_64-appstream-rpms   18 M
+
+Transaction Summary
+===========================================================================================================================
+
+Freed space: 430 M
+Is this ok [y/N]:
+.
+.
+.
+----
+
+=== dnf list all
+
+----
+$ sudo dnf list  --installed | more -15
+Updating Subscription Management repositories.
+Installed Packages
+GConf2.x86_64                                      3.2.6-22.el8                                   @AppStream                       
+ModemManager.x86_64                                1.10.8-4.el8                                   @anaconda                        
+ModemManager-glib.x86_64                           1.10.8-4.el8                                   @anaconda                        
+NetworkManager.x86_64                              1:1.32.10-4.el8                                @anaconda                        
+NetworkManager-adsl.x86_64                         1:1.32.10-4.el8                                @anaconda                        
+NetworkManager-bluetooth.x86_64                    1:1.32.10-4.el8                                @anaconda                        
+NetworkManager-config-server.noarch                1:1.32.10-4.el8                                @anaconda                        
+NetworkManager-libnm.x86_64                        1:1.32.10-4.el8                                @anaconda                        
+NetworkManager-team.x86_64                         1:1.32.10-4.el8                                @anaconda                        
+NetworkManager-tui.x86_64                          1:1.32.10-4.el8                                @anaconda                        
+NetworkManager-wifi.x86_64                         1:1.32.10-4.el8                                @anaconda                        
+NetworkManager-wwan.x86_64                         1:1.32.10-4.el8                                @anaconda                        
+PackageKit.x86_64                                  1.1.12-6.el8                                   @AppStream                       
+--More--
+----
+
+
+*Example:*
+
+The following example list all modules. The output is very long. The `more` command uses the `-15` option to initially show the first 15 lines of output.
+
+----
+$ sudo dnf list all | more -15
+Updating Subscription Management repositories.
+Last metadata expiration check: 4:00:42 ago on Wed 02 Feb 2022 05:08:48 AM PST.
+Installed Packages
+GConf2.x86_64                                3.2.6-22.el8                            @AppStream                       
+ModemManager.x86_64                          1.10.8-4.el8                            @anaconda                        
+ModemManager-glib.x86_64                     1.10.8-4.el8                            @anaconda                        
+NetworkManager.x86_64                        1:1.32.10-4.el8                         @anaconda                        
+NetworkManager-adsl.x86_64                   1:1.32.10-4.el8                         @anaconda                        
+NetworkManager-bluetooth.x86_64              1:1.32.10-4.el8                         @anaconda                        
+NetworkManager-config-server.noarch          1:1.32.10-4.el8                         @anaconda                        
+NetworkManager-libnm.x86_64                  1:1.32.10-4.el8                         @anaconda                        
+NetworkManager-team.x86_64                   1:1.32.10-4.el8                         @anaconda                        
+NetworkManager-tui.x86_64                    1:1.32.10-4.el8                         @anaconda                        
+NetworkManager-wifi.x86_64                   1:1.32.10-4.el8                         @anaconda                        
+NetworkManager-wwan.x86_64                   1:1.32.10-4.el8                         @anaconda                        
+--More--
+----
+
+=== dnf list installed
+
+----
+dnf list installed
+----
+
+The following example uses the command `dnf list installed` to list the packets installed on the system. The output is very long. The `more` command uses the `-15` option to initially show the first 15 lines of output.
+
+----
+$ sudo dnf list installed | more -15
+Updating Subscription Management repositories.
+Installed Packages
+GConf2.x86_64                                      3.2.6-22.el8                                   @AppStream                       
+ModemManager.x86_64                                1.10.8-4.el8                                   @anaconda                        
+ModemManager-glib.x86_64                           1.10.8-4.el8                                   @anaconda                        
+NetworkManager.x86_64                              1:1.32.10-4.el8                                @anaconda                        
+NetworkManager-adsl.x86_64                         1:1.32.10-4.el8                                @anaconda                        
+NetworkManager-bluetooth.x86_64                    1:1.32.10-4.el8                                @anaconda                        
+NetworkManager-config-server.noarch                1:1.32.10-4.el8                                @anaconda                        
+NetworkManager-libnm.x86_64                        1:1.32.10-4.el8                                @anaconda                        
+NetworkManager-team.x86_64                         1:1.32.10-4.el8                                @anaconda                        
+NetworkManager-tui.x86_64                          1:1.32.10-4.el8                                @anaconda                        
+NetworkManager-wifi.x86_64                         1:1.32.10-4.el8                                @anaconda                        
+NetworkManager-wwan.x86_64                         1:1.32.10-4.el8                                @anaconda                        
+PackageKit.x86_64                                  1.1.12-6.el8                                   @AppStream                       
+--More--
+----
+
+=== dnf repolist
+
+----
+sudo dnf repolist
+----
+
+Lists the remote package repositories registered on the local machines.
+
+*Example:*
+
+The following example uses the `dnf repolist` to list the remote package repositories registered on the local machines.
+
+----
+$ sudo dnf repolist
+Updating Subscription Management repositories.
+repo id                                         repo name
+epel                                            Extra Packages for Enterprise Linux 8 - x86_64
+epel-modular                                    Extra Packages for Enterprise Linux Modular 8 - x86_64
+rhel-8-for-x86_64-appstream-rpms                Red Hat Enterprise Linux 8 for x86_64 - AppStream (RPMs)
+rhel-8-for-x86_64-baseos-rpms                   Red Hat Enterprise Linux 8 for x86_64 - BaseOS (RPMs)
+----
+
+== Subscription Manager commands
+
+----
+subscription-manager command [options]
+----
+
+The command is a client-side program that provides a command line interface to the RHEL Subscription Management service. The Service Manager coordinates accessing, monitoring and getting information about RHEL applications and modules.
+
+=== subscription-manager repos --enable repository
+
+Enables access to a remote package repository via the Subscription Manager
+
+*Examples:*
+
+The following example uses the `repos` command to list the various artifact repository available via the Subscription Manager. The `repos` command requires root access. The command will problem for the root password if it is not executed as root.
+
+The example belows shows only a portion of the full output.
+
+----
+$ subscription-manager repos
+You are attempting to run "subscription-manager" which requires administrative
+privileges, but more information is needed in order to do so.
+Authenticating as "root"
+Password: 
++----------------------------------------------------------+
+    Available Repositories in /etc/yum.repos.d/redhat.repo
++----------------------------------------------------------+
+Repo ID:   rhel-8-for-x86_64-sap-solutions-e4s-rpms
+Repo Name: Red Hat Enterprise Linux 8 for x86_64 - SAP Solutions - Update Services for SAP Solutions (RPMs)
+Repo URL:  https://cdn.redhat.com/content/e4s/rhel8/$releasever/x86_64/sap-solutions/os
+Enabled:   0
+
+Repo ID:   jpp-textonly-1-for-middleware-rpms
+Repo Name: Red Hat JBoss Portal Text-Only Advisories
+Repo URL:  https://cdn.redhat.com/content/dist/middleware/jpp/1.0/$basearch/os
+Enabled:   0
+
+Repo ID:   jb-datagrid-8.1-for-rhel-8-x86_64-source-rpms
+Repo Name: Red Hat JBoss Data Grid 8.1 (RHEL 8) (Source RPMs)
+Repo URL:  https://cdn.redhat.com/content/dist/layered/rhel8/x86_64/jdg/8.1/source/SRPMS
+Enabled:   0
+
+Repo ID:   jb-datagrid-8.1-for-rhel-8-x86_64-debug-rpms
+Repo Name: Red Hat JBoss Data Grid 8.1 (RHEL 8) (Debug RPMs)
+Repo URL:  https://cdn.redhat.com/content/dist/layered/rhel8/x86_64/jdg/8.1/debug
+Enabled:   0
+.
+.
+.
+----
+
+The following example enables the client computer to access the repository `jb-datagrid-8.1-for-rhel-8-x86_64-source-rpms`.
+
+----
+$ subscription-manager repos --enable jb-datagrid-8.1-for-rhel-8-x86_64-source-rpms
+You are attempting to run "subscription-manager" which requires administrative
+privileges, but more information is needed in order to do so.
+Authenticating as "root"
+Password: 
+Repository 'jb-datagrid-8.1-for-rhel-8-x86_64-source-rpms' is enabled for this system.
+----
+
+The following example disables the client computer from accessing the repository `jb-datagrid-8.1-for-rhel-8-x86_64-source-rpms`.
+
+----
+$ subscription-manager repos --disable jb-datagrid-8.1-for-rhel-8-x86_64-source-rpms
+You are attempting to run "subscription-manager" which requires administrative
+privileges, but more information is needed in order to do so.
+Authenticating as "root"
+Password: 
+Repository 'jb-datagrid-8.1-for-rhel-8-x86_64-source-rpms' is disabled for this system.
+----
+
+== General module commands
+
+The following shows the various ways the command `dnf module` can be used to enable, install, and remove modules.
+
+=== dnf module list
+
+----
+dnf module [options] list
+----
+
+Lists the modules available according to repositories registered with Subscription Manager
+
+*Example:*
+
+The follow shows a portions of the modules listed using the command `dnf module list`.
+
+----
+$ dnf module list
+Not root, Subscription Management repositories not updated
+Red Hat Enterprise Linux 8 for x86_64 - BaseOS (RPMs)      10 kB/s | 4.1 kB     00:00    
+Red Hat Enterprise Linux 8 for x86_64 - AppStream (RPMs)   13 kB/s | 4.5 kB     00:00    
+Extra Packages for Enterprise Linux Modular 8 - x86_64
+Name                 Stream           Profiles Summary                                                                                                                                                                   
+389-directory-server next             default, 389 Directory Server                                                                                                                                                      
+                                       minimal 
+389-directory-server stable           default  389 Directory Server                                                                                                                                                      
+                                      [d], leg 
+                                      acy, min 
+                                      imal     
+389-directory-server testing          default  389 Directory Server                                                                                                                                                      
+                                      [d], leg 
+                                      acy, min 
+                                      imal     
+avocado              latest           default, Framework with tools and libraries for Automated Testing                                                                                                                  
+                                       minimal 
+avocado              82lts            default, Framework with tools and libraries for Automated Testing                                                                                                                  
+                                       minimal 
+avocado-vt           latest           default  Avocado Virt Test Plugin                                                                                                                                                  
+cobbler              3                default  Versatile Linux deployment server                                                                                                                                         
+                                      [d]      
+cri-o                1.21             default  Kubernetes Container Runtime Interface for OCI-based containers                                                                                                           
+                                      [d]      
+dwm                  latest           default, Dynamic window manager for X                                                                                                                                              
+                                       user    
+ghc                  8.2              default  Haskell GHC 8.2                                                                                                                                                           
+                                      [d], min 
+                                      imal, sm 
+                                      all      
+ghc                  8.4              default  Haskell GHC 8.4                                                                                                                                                           
+                                      [d], min 
+                                      imal, sm 
+                                      all      
+----
+
+=== dnf module enable module:stream
+
+----
+dnf module [options] enable <module:stream>
+----
+
+Enables a module.
+
+*Example:*
+
+The following example enables the module `scala:2.10`.
+
+----
+$ sudo dnf module enable scala:2.10
+Updating Subscription Management repositories.
+Last metadata expiration check: 0:18:54 ago on Fri 28 Jan 2022 11:32:49 AM PST.
+Dependencies resolved.
+================================================================================================
+ Package                                             Architecture  Version   Repository  Size
+================================================================================================
+Enabling module streams:
+ scala                                                              2.10                                                                                                            
+
+Transaction Summary
+================================================================================================
+
+Is this ok [y/N]: 
+Complete!
+----
+
+=== dnf module remove module
+
+----
+dnf module remove <module_name:stream>
+----
+
+Removes a module from the local environment
+
+*Example:*
+
+The following example removes the module `ant` from the local environment
+
+----
+$ sudo dnf remove ant
+Updating Subscription Management repositories.
+Dependencies resolved.
+==================================================================
+ Package                            Architecture                Version                                Repository                               Size
+==================================================================
+Removing:
+ ant                                noarch                       1.10.5-1.module+el8+2438+c99a8a1e      @rhel-8-for-x86_64-appstream-rpms       451 k
+Removing unused dependencies:
+ ant-lib                            noarch                       1.10.5-1.module+el8+2438+c99a8a1e      @rhel-8-for-x86_64-appstream-rpms       2.2 M
+ java-1.8.0-openjdk                 x86_64                       1:1.8.0.322.b06-2.el8_5                @rhel-8-for-x86_64-appstream-rpms       841 k
+ java-1.8.0-openjdk-devel           x86_64                       1:1.8.0.322.b06-2.el8_5                @rhel-8-for-x86_64-appstream-rpms       41 M
+ ttmkfdir                           x86_64                       3.0.9-54.el8                           @rhel-8-for-x86_64-appstream-rpms       128 k
+ xorg-x11-fonts-Type1               noarch                       7.5-19.el8                             @rhel-8-for-x86_64-appstream-rpms       863 k
+
+Transaction Summary
+==================================================================
+
+Freed space: 45 M
+Is this ok [y/N]: y
+Running transaction check
+Transaction check succeeded.
+Running transaction test
+Transaction test succeeded.
+Running transaction
+  Preparing        :                                                                                              1/1 
+  Erasing          : ant-1.10.5-1.module+el8+2438+c99a8a1e.noarch                                                 1/6 
+  Erasing          : java-1.8.0-openjdk-devel-1:1.8.0.322.b06-2.el8_5.x86_64                                      2/6 
+  Running scriptlet: java-1.8.0-openjdk-devel-1:1.8.0.322.b06-2.el8_5.x86_64                                      2/6 
+  Erasing          : ant-lib-1.10.5-1.module+el8+2438+c99a8a1e.noarch                                             3/6 
+  Erasing          : java-1.8.0-openjdk-1:1.8.0.322.b06-2.el8_5.x86_64                                            4/6 
+  Running scriptlet: java-1.8.0-openjdk-1:1.8.0.322.b06-2.el8_5.x86_64                                            4/6 
+  Erasing          : xorg-x11-fonts-Type1-7.5-19.el8.noarch                                                       5/6 
+  Running scriptlet: xorg-x11-fonts-Type1-7.5-19.el8.noarch                                                       5/6 
+  Erasing          : ttmkfdir-3.0.9-54.el8.x86_64                                                                 6/6 
+  Running scriptlet: ttmkfdir-3.0.9-54.el8.x86_64                                                                 6/6 
+  Verifying        : ant-1.10.5-1.module+el8+2438+c99a8a1e.noarch                                                 1/6 
+  Verifying        : ant-lib-1.10.5-1.module+el8+2438+c99a8a1e.noarch                                             2/6 
+  Verifying        : java-1.8.0-openjdk-1:1.8.0.322.b06-2.el8_5.x86_64                                            3/6 
+  Verifying        : java-1.8.0-openjdk-devel-1:1.8.0.322.b06-2.el8_5.x86_64                                      4/6 
+  Verifying        : ttmkfdir-3.0.9-54.el8.x86_64                                                                 5/6 
+  Verifying        : xorg-x11-fonts-Type1-7.5-19.el8.noarch                                                       6/6 
+Installed products updated.
+
+Removed:
+  ant-1.10.5-1.module+el8+2438+c99a8a1e.noarch     ant-lib-1.10.5-1.module+el8+2438+c99a8a1e.noarch     java-1.8.0-openjdk-1:1.8.0.322.b06-2.el8_5.x86_64
+  java-1.8.0-openjdk-devel-1:1.8.0.322.b06-2.el8_5.x86_64     ttmkfdir-3.0.9-54.el8.x86_64   xorg-x11-fonts-Type1-7.5-19.el8.noarch              
+
+Complete!
+----
+
+=== dnf module disable module
+
+----
+dnf module disable <module_name:stream>
+----
+
+*Example:*
+
+The following example disables them module `scala` for stream `2.10`.
+
+----
+$ sudo dnf module disable  scala:2.10
+Updating Subscription Management repositories.
+Last metadata expiration check: 0:18:31 ago on Tue 01 Feb 2022 09:09:19 AM PST.
+Only module name is required. Ignoring unneeded information in argument: 'scala:2.10'
+Dependencies resolved.
+=====================================================================================
+ Package                      Architecture        Version    Repository   Size
+=====================================================================================
+Disabling module profiles:
+ scala/common                                                                                                                                                                                                           
+Disabling modules:
+ scala                                                                                                                                                                                                                  
+
+Transaction Summary
+======================================================================================
+Is this ok [y/N]: y
+Complete!
+----
+
+== Module installation commands
+
+----
+sudo dnf install [options] <package_name>
+----
+
+Installs an application or package on the local system.
+
+The following are application and module specific examples of using the command `dnf install`. Notice that the commands are run with administrator privileges using the `sudo` command.
+
+Installs the Ant build tool. Uses the `--nodocs` option to not install the package documentation.
+
+----
+sudo dnf install --nodocs ant
+----
+
+Installs the `buildah` tools which is used to create container images for Red Hat Enterprise Linux. Also installs the `podman` container manager. Uses the `--best` option to isntall the best version of the package.
+
+----
+sudo dnf install --best  buildah podman
+----
+
+Installs the llvm-toolset which includes the LLVM compiler infrastructure framework, the Clang compiler for the C and C++ languages, the LLDB debugger, and related tools for code analysis.
+
+----
+sudo dnf install llvm-toolset
+----
+
+Installs a group of packages associated with those tools typically used by programmers and software developers. Packages include `Python`, `Perl`, `gcc` and `make`, to name a few.
+----
+sudo dnf group install "Development Tools"
+----
+
+Installs the Go programming language along with associated tools and libraries.
+
+----
+sudo dnf install go-toolset
+----
+
+Installs the Apache HTTP Web Server
+
+----
+sudo dnf install httpd
+----
+
+Installs the MariaDB database server
+
+----
+sudo dnf install mariadb
+----
+
+Installs the Apache Maven framework for programming and managing Java applications
+
+----
+sudo dnf install maven
+----
+
+Installs the MySql database server
+
+----
+sudo dnf install mysql
+----
+
+Installs the nginx web server
+
+----
+sudo dnf install nginx
+----
+
+Installs the Node.js programming environment
+
+----
+sudo dnf install nodejs
+----
+
+Installs version 11 of the Java Development Kit
+
+----
+sudo dnf install java-11-openjdk-devel
+----
+
+Installs version 8 of the Java Development Kit
+
+----
+sudo dnf install java-1.8.0-openjdk-devel
+----
+
+Installs the Perl programming language and associated tools and libraries.
+
+----
+sudo dnf install perl
+----
+
+Installs the PHP programming language and associated tools and libraries.
+
+----
+sudo dnf install php
+----
+
+Installs the Postgres database server
+
+----
+sudo dnf install postgresql
+----
+
+Installs the Postgres database server using the module:stream syntax
+
+----
+sudo dnf module install postgresql:9.6
+----
+
+Installs the Python 2 programming language and associated tools and libraries.
+
+----
+sudo dnf install python2
+----
+
+----
+sudo dnf module install python27
+----
+
+Installs the Python 3 programming language and associated tools and libraries.
+
+----
+sudo dnf install python3
+----
+
+----
+sudo dnf module install python36
+----
+
+Installs the Redis database and message broker
+
+----
+sudo dnf install redis
+----
+
+Installs the Ruby programming language and associated tools and libraries.
+
+----
+sudo dnf install ruby
+----
+
+Installs the Rust programming language and associated tools and libraries.
+
+----
+sudo dnf install rust-toolset
+----
+
+Installs the Scala programming language and associated tools and libraries.
+
+----
+sudo dnf install scala
+----
+
+Installs the Subversion source control management system
+
+----
+sudo dnf install subversion
+----
+
+Installs the SWIG interface compiler that connects programs written in C and C++ with scripting languages such as Perl, Python, Ruby, and Tcl.
+
+----
+sudo dnf install swig
+----
+
+Installs the SystemTap tool that allows users to study and monitor the activities of the operating system (particularly, the kernel) in fine detail.
+
+----
+sudo dnf install systemtap
+----
+
+Installs the Valgrind tool for debugging and profiling Linux programs.
+
+----
+sudo dnf install valgrind
+----
+
+Installs the Varnish web application accelerator which can also be used as a caching HTTP reverse proxy
+
+----
+sudo dnf install varnish
+----

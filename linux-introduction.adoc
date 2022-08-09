@@ -87,6 +87,7 @@ $ echo "Hello World" > data.txt
 ```
 
 === top
+
 `top [options]` 
 
 Displays information about the running Linux processes.
@@ -161,7 +162,6 @@ Creates an environment variable with a value and then exports the environment va
 *Example:*
 
 The following command creates an environment variable named `WEB_PAGE` and sets the value to `https://www.redhat.com/en`. The `echo` command confirms the value of the environment variable:
-
 
 ```
 $ export WEB_PAGE="https://www.redhat.com/en"
@@ -409,7 +409,7 @@ Creates a new directory named `documents` in the user's home directory:
 
 `more [options] </path/to/filename or stdout>`
 
-Allows a user to view and traverse the content of a file or stdout. The command `more` invokes itself within a distinct command-line user interface. To exit the process users strike the `q` key.
+Allows a user to view and traverse the content of a file or stdout. The command `more` invokes itself within a distinct command-line user interface. To exit the process users press the `q` key.
 
 *Examples:*
 
@@ -424,7 +424,7 @@ adm:x:3:4:adm:/var/adm:/sbin/nologin
 --More--(5%)
 ```
 
-This example illustrates using the `more` command to process stdout data. The example pipes the result of running `ls` against the directory `/etc`. The command `more` displays the first four lines of the output from stdout as declared in the option `-4`. Users can traverse through the rest of stdout a line at time by striking the `<ENTER>` key:
+This example illustrates using the `more` command to process stdout data. The example pipes the result of running `ls` against the directory `/etc`. The command `more` displays the first four lines of the output from stdout as declared in the option `-4`. Users can traverse through the rest of stdout a line at time by pressing the `<ENTER>` key:
 
 ```
 $ ls /etc | more -4
@@ -515,7 +515,7 @@ $ tar -xvf docs.tar.gz -C  ./new-docs
 
 == Help commands
 
-The command in this section applies to working with the command-line help documentation provided on a Linux  computer.
+The command in this section applies to working with the command-line help documentation provided on a Linux computer.
 
 === man
 
@@ -589,7 +589,7 @@ $ ip addr
 
 === netstat
 
-`netstat  [options]`
+`netstat [options]`
 
 Displays information about network connections, routing tables, interface statistics, masquerade connections, and multicast memberships.
 
@@ -616,11 +616,11 @@ tcp6       0      0 :::9090                 :::*                    LISTEN      
 
 `ssh [options] <ip_address>`
 
-Secure shell is an encrypted network protocol that provides remote login and command execution capabilities. On Windows, you would use `PuTTY` and `WinSCP`. A `ssh.exe` is also available via Cygwin, as well as with a Git installation.
+Secure shell is an encrypted network protocol that provides remote login and command execution capabilities. On Windows, you would use `PuTTY` and `WinSCP`. An `ssh.exe` is also available via Cygwin, as well as with a Git installation.
 
 *Example:*
 
-The following example shows how to use `ssh` to log in to a remote computer that has the IP address `192.168.86.11`:
+The following example shows how to use `ssh` to log into a remote computer that has the IP address `192.168.86.11`:
 
 ```
 $ ssh 192.168.86.11
@@ -713,6 +713,7 @@ Shuts down a computer. Must be run as `sudo`.
 ```
 $ sudo poweroff
 ```
+
 Note that `$` indicates the command-line prompt.
 
 === restart

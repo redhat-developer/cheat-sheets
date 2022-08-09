@@ -1,0 +1,523 @@
+= Package Management Cheat Sheet
+:experimental: true
+:product-name:
+
+== Working with RPM
+
+RPM is a popular package management tool in Red Hat Enterprise Linux-based distros. Using RPM, you can install, uninstall, and query individual software packages. Still, it cannot manage dependency resolution like YUM. RPM does provide you useful output, including a list of required packages. An RPM package consists of an archive of files and metadata. Metadata includes helper scripts, file attributes, and information about packages.
+
+RPM keeps a list of installed packages in a database that located on inside the folder `/var/lib` on the host computer.
+
+You can use the RPM command line tool `rpm` to install, updated, delete and query packages.
+
+Capabilities are assigned to the `rpm` command by assigning options to the `rpm` command. For example, the `-i` option tells `rpm` to install a package.
+
+
+The following sections describe the various way to use `rpm`.
+
+=== Listing all installed packages
+
+```
+rpm -qa
+```
+
+*Example*
+
+The following example demonstrates using the `rpm` command with the `-qa` options to list all the packages installed on the host computer. The  result is piped to the `more` command in order to limit the number of package listings returned.
+
+```
+$ rpm -qa | more -5
+qemu-kvm-block-gluster-6.2.0-11.module+el8.6.0+14707+5aa4b42d.x86_64
+device-mapper-persistent-data-0.9.0-6.el8.x86_64
+perl-File-Path-2.15-2.el8.noarch
+glib2-2.56.4-158.el8.x86_64
+microcode_ctl-20220207-1.el8.x86_64
+```
+
+=== Listing all files associate with a package
+
+```
+rpm -ql <package_name>
+```
+
+*Example*
+
+The following example demonstrates using the `rpm` command with the `ql` options to list all the packages associated with the Linux command `curl`. 
+
+```
+rpm -ql curl
+/usr/bin/curl
+/usr/lib/.build-id
+/usr/lib/.build-id/09
+/usr/lib/.build-id/09/dcda6e77ea757074bf0706145bcf62490ec22b
+/usr/share/doc/curl
+/usr/share/doc/curl/BUGS
+/usr/share/doc/curl/CHANGES
+/usr/share/doc/curl/FAQ
+/usr/share/doc/curl/FEATURES
+/usr/share/doc/curl/MANUAL
+/usr/share/doc/curl/README
+/usr/share/doc/curl/RESOURCES
+/usr/share/doc/curl/TODO
+/usr/share/doc/curl/TheArtOfHttpScripting
+/usr/share/man/man1/curl.1.gz
+/usr/share/zsh/site-functions
+/usr/share/zsh/site-functions/_curl
+```
+
+=== Installing a package
+
+```
+rpm -ivh <package_url>
+```
+
+*Example*
+
+The following example demonstrates using the `rpm` with the `-ivh` options to install an `rpm` package from a location on the internet.
+
+```
+$ sudo rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+
+Retrieving https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+warning: /var/tmp/rpm-tmp.G0fqLy: Header V4 RSA/SHA256 Signature, key ID 2f86d6a1: NOKEY
+Verifying...                          ################################# [100%]
+Preparing...                          ################################# [100%]
+Updating / installing...
+   1:epel-release-8-15.el8            ################################# [100%]
+```
+
+=== Installing a package without dependencies
+
+```
+rpm -ivh --nodeps <url>
+```
+
+*Example*
+
+The following example demonstrates using the `rpm` with the `-ivh` and  `--nodeps` options to install an `rpm` package from a location on the internet. Using the `--nodeps` option constrains the installation to add only the main package without its dependencies.
+
+```
+$ sudo rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+```
+
+=== Upgrading a package
+
+```
+rpm -Uvh <url>
+```
+
+*Example*
+
+The following example demonstrates using the `rpm` with the `-Uvh` options to update a package hosted on the internet. In this case the command reports that the  latest version of the package is installed.
+
+```
+$ sudo rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+Retrieving https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+Verifying...                          ################################# [100%]
+Preparing...                          ################################# [100%]
+        package epel-release-8-15.el8.noarch is already installed
+```
+
+=== Removing a package
+
+```
+rpm -e <package_name>
+```
+
+*Example*
+
+The following example demonstrates using the `rpm` with the `-e` option to remove a package and its dependencies installed on the host computer.
+
+```
+sudo rpm -e epel-release-8-15.el8.noarch
+```
+
+=== Removing a package without dependencies
+
+```
+rpm -evh --nodeps <package_name>
+```
+
+*Example*
+
+The following example demonstrates using the `rpm` with the `-e` option to remove a package yet leaves its dependencies intact.
+
+```
+sudo rpm -evh --nodeps epel-release-8-15.el8.noarch
+```
+
+=== Querying a package
+
+```
+rpm -q <package_name>
+```
+
+*Example*
+
+The following example demonstrates using the `rpm` with the `-q` option to query for all the details about the package `buildah`.
+
+```
+$ rpm -q buildah
+
+buildah-1.24.2-4.module+el8.6.0+14877+f643d2d6.x86_64
+```
+
+=== Querying a package with details
+
+```
+rpm -qi <package_name>
+```
+
+*Example*
+
+The following example demonstrates using the `rpm` with the `-qi` option to query for the version information for the package `buildah`.
+
+```
+$ rpm -qi buildah
+Name        : buildah
+Epoch       : 1
+Version     : 1.24.2
+Release     : 4.module+el8.6.0+14877+f643d2d6
+Architecture: x86_64
+Install Date: Tue 21 Jun 2022 07:40:41 AM PDT
+Group       : Unspecified
+Size        : 30943650
+License     : ASL 2.0
+Signature   : RSA/SHA256, Mon 25 Apr 2022 12:50:53 AM PDT, Key ID 199e2f91fd431d51
+Source RPM  : buildah-1.24.2-4.module+el8.6.0+14877+f643d2d6.src.rpm
+Build Date  : Tue 19 Apr 2022 03:22:19 AM PDT
+Build Host  : x86-vm-56.build.eng.bos.redhat.com
+Relocations : (not relocatable)
+Packager    : Red Hat, Inc. <http://bugzilla.redhat.com/bugzilla>
+Vendor      : Red Hat, Inc.
+URL         : https://buildah.io
+Summary     : A command line tool used for creating OCI Images
+Description :
+The buildah package provides a command line tool which can be used to
+* create a working container from scratch
+or
+* create a working container from an image as a starting point
+* mount/umount a working container's root file system for manipulation
+* save container's root file system layer to create a new image
+* delete a working container or an image
+```
+== Package Repositories
+
+A Package Repository is a remote server that provides software packages ready to be installed on your local computer using the DNF package manager.
+
+A package repository is described on your local machine in a `.repo` file.
+
+The following example shows contents of the `epel.repo` file:
+
+```
+[epel]
+name=Extra Packages for Enterprise Linux 8 - $basearch
+# It is much more secure to use the metalink, but if you wish to use a local mirror
+# place its address here.
+#baseurl=https://download.example/pub/epel/8/Everything/$basearch
+metalink=https://mirrors.fedoraproject.org/metalink?repo=epel-8&arch=$basearch&infra=$infra&content=$contentdir
+enabled=1
+gpgcheck=1
+countme=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-8
+
+[epel-debuginfo]
+name=Extra Packages for Enterprise Linux 8 - $basearch - Debug
+# It is much more secure to use the metalink, but if you wish to use a local mirror
+# place its address here.
+#baseurl=https://download.example/pub/epel/8/Everything/$basearch/debug
+metalink=https://mirrors.fedoraproject.org/metalink?repo=epel-debug-8&arch=$basearch&infra=$infra&content=$contentdir
+enabled=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-8
+gpgcheck=1
+
+[epel-source]
+name=Extra Packages for Enterprise Linux 8 - $basearch - Source
+# It is much more secure to use the metalink, but if you wish to use a local mirror
+# place it's address here.
+#baseurl=https://download.example/pub/epel/8/Everything/source/tree/
+metalink=https://mirrors.fedoraproject.org/metalink?repo=epel-source-8&arch=$basearch&infra=$infra&content=$contentdir
+enabled=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-8
+gpgcheck=1
+```
+
+Package repository `.repo` files are typically stored in the directory `/etc/yum.repos.d`.
+
+=== Listing repositories
+
+```
+sudo ls -l /etc/yum.repos.d
+```
+
+*Example*
+
+The following example demonstrates listing the repositories stored in the `/etc/yum.repos.d` folder of host computer using the Linux `ls` command.
+
+
+```
+$ sudo ls -l /etc/yum.repos.d
+
+total 192
+-rw-r--r--. 1 root root   1395 Mar 14 14:53 epel-modular.repo
+-rw-r--r--. 1 root root   1332 Mar 14 14:53 epel.repo
+-rw-r--r--. 1 root root   1494 Mar 14 14:53 epel-testing-modular.repo
+-rw-r--r--. 1 root root   1431 Mar 14 14:53 epel-testing.repo
+-rw-r--r--. 1 root root 180039 Jun 20 10:17 redhat.repo
+```
+
+=== Adding a repository
+
+```
+dnf config-manager --add-repo /etc/yum.repos.d/fedora_extras.repo
+```
+
+*Example*
+
+The following example demonstrates using the `dnf` command with the `config-manager` subcommand along with the `--add-repo` option to add the `epel.repo` repository the the RHEL Subscription Management.
+
+```
+$ sudo dnf config-manager --add-repo /etc/yum.repos.d/epel.repo
+Updating Subscription Management repositories.
+Adding repo from: file:///etc/yum.repos.d/epel.repo
+```
+
+== Working with DNF and YUM
+
+The `dnf` (Dandified YUM) and its antecedent `yum` (Yellowdog Updater, Modifier) are command line executables that facilitate installing, updating and removing packages from a machine.
+
+You can usually use `dnf` and `yum` interchangeably to work with packages on a local machine.
+
+The following sections demonstrate how to use `dnf` and `yum` to install, update, remove and inspect RPM packages.
+
+=== install
+
+```
+dnf sudo install <package_name> -y
+```
+
+WHERE `-y` is the option that overrides prompting the user for permission to install the package
+
+*Example*
+
+The following example snippet demonstrates using the `dnf` command with the `install` subcommand to install the package `buildah` on the host computer. The `-y` option overrides prompting the user for permission to install the package.
+
+```
+$ sudo dnf install buildah -y
+Updating Subscription Management repositories.
+Last metadata expiration check: 0:01:08 ago on Mon 20 Jun 2022 10:39:23 AM PDT.
+Package buildah-1:1.24.2-4.module+el8.6.0+14673+621cb8be.x86_64 is already installed.
+Dependencies resolved.
+====================================================================================================================================================================
+ Package                  Architecture            Version                                                   Repository                                         Size
+====================================================================================================================================================================
+Upgrading:
+ buildah                  x86_64                  1:1.24.2-4.module+el8.6.0+14877+f643d2d6                  rhel-8-for-x86_64-appstream-rpms                  8.1 M
+.
+.
+.
+```
+
+=== remove
+
+```
+dnf sudo remove <package_name> -y
+```
+
+*Example*
+
+The following example snippet demonstrates using the `dnf` command with the `remove` subcommand to remove the package `buildah` on the host computer. The `-y` option overrides prompting the user for permission to remove the package.
+
+```
+sudo dnf remove buildah -y
+
+Updating Subscription Management repositories.
+Dependencies resolved.
+====================================================================================================================================================================
+ Package                 Architecture           Version                                                     Repository                                         Size
+====================================================================================================================================================================
+Removing:
+ buildah                 x86_64                 1:1.24.2-4.module+el8.6.0+14877+f643d2d6                    @rhel-8-for-x86_64-appstream-rpms                  30 M
+
+Transaction Summary
+====================================================================================================================================================================
+Remove  1 Package
+
+Freed space: 30 M
+Running transaction check
+Transaction check succeeded.
+Running transaction test
+Transaction test succeeded.
+Running transaction
+  Preparing        :                                                                                                                                            1/1 
+  Erasing          : buildah-1:1.24.2-4.module+el8.6.0+14877+f643d2d6.x86_64                                                                                    1/1 
+  Running scriptlet: buildah-1:1.24.2-4.module+el8.6.0+14877+f643d2d6.x86_64                                                                                    1/1 
+  Verifying        : buildah-1:1.24.2-4.module+el8.6.0+14877+f643d2d6.x86_64                                                                                    1/1 
+Installed products updated.
+
+Removed:
+  buildah-1:1.24.2-4.module+el8.6.0+14877+f643d2d6.x86_64                                                                                                           
+
+Complete!
+```
+
+=== upgrade
+
+```
+sudo dnf upgrade
+```
+
+*Example*
+
+The following example snippet demonstrates using the `dnf` command with the `upgrade` subcommand to upgrade the repositories stored on the host computer. The `-y` option overrides prompting the user for permission to upgrade the host computer.
+
+```
+sudo dnf upgrade -y
+Updating Subscription Management repositories.
+Last metadata expiration check: 1:27:55 ago on Tue 21 Jun 2022 06:18:32 AM PDT.
+Dependencies resolved.
+====================================================================================================================================================================
+ Package                                Architecture      Version                                                 Repository                                   Size
+====================================================================================================================================================================
+Upgrading:
+ alsa-sof-firmware                      noarch            1.9.3-1.el8_5                                           rhel-8-for-x86_64-baseos-rpms               780 k
+ cockpit-podman                         noarch            43-1.module+el8.6.0+14877+f643d2d6                      rhel-8-for-x86_64-appstream-rpms            494 k
+ conmon                                 x86_64            2:2.1.0-1.module+el8.6.0+14877+f643d2d6                 rhel-8-for-x86_64-appstream-rpms             55 k
+ container-selinux                      noarch            2:2.179.1-1.module+el8.6.0+14877+f643d2d6               rhel-8-for-x86_64-appstream-rpms             58 k
+ containernetworking-plugins            x86_64            1:1.0.1-2.module+el8.6.0+14877+f643d2d6                 rhel-8-for-x86_64-appstream-rpms             18 M
+ containers-common                      x86_64            2:1-27.module+el8.6.0+14877+f643d2d6                    rhel-8-for-x86_64-appstream-rpms             95 k
+ criu                                   x86_64            3.15-3.module+el8.6.0+14877+f643d2d6                    rhel-8-for-x86_64-appstream-rpms            518 k
+.
+.
+.
+  sssd-proxy-2.6.2-4.el8_6.x86_64                                                      xz-5.2.4-4.el8_6.x86_64                                                     
+  xz-libs-5.2.4-4.el8_6.x86_64                                                        
+Installed:
+  grub2-tools-efi-1:2.02-123.el8_6.8.x86_64                                                                                                                         
+
+Complete!
+```
+
+
+=== search
+
+```
+sudo dnf search <package_name>
+```
+
+*Example*
+
+The following example demonstrates using the `dnf` command with the `search` subcommand to search for the package `curl` along with its dependencies on the host computer.
+
+```
+$ sudo dnf search curl
+Updating Subscription Management repositories.
+Last metadata expiration check: 0:01:01 ago on Mon 20 Jun 2022 10:31:02 AM PDT.
+==================================================================== Name Exactly Matched: curl ====================================================================
+curl.x86_64 : A utility for getting files from remote servers (FTP, HTTP, and others)
+=================================================================== Name & Summary Matched: curl ===================================================================
+libcurl-devel.x86_64 : Files needed for building applications with libcurl
+libcurl-devel.i686 : Files needed for building applications with libcurl
+libcurl-minimal.i686 : Conservatively configured build of libcurl for minimal installations
+libcurl-minimal.x86_64 : Conservatively configured build of libcurl for minimal installations
+nbdkit-curl-plugin.x86_64 : HTTP/FTP (cURL) plugin for nbdkit
+python3-pycurl.x86_64 : Python interface to libcurl for Python 3
+qemu-kvm-block-curl.x86_64 : QEMU CURL block driver
+======================================================================== Name Matched: curl ========================================================================
+libcurl.x86_64 : A library for getting files from web servers
+libcurl.i686 : A library for getting files from web servers
+```
+
+=== info
+```
+dnf info <package_name>
+```
+
+*Example*
+
+The following example demonstrates using the `dnf` command with the `info` subcommand to get detail information about the package `curl`.
+
+```
+$ dnf info curl
+Not root, Subscription Management repositories not updated
+Last metadata expiration check: 0:02:05 ago on Mon 20 Jun 2022 10:34:55 AM PDT.
+Installed Packages
+Name         : curl
+Version      : 7.61.1
+Release      : 22.el8
+Architecture : x86_64
+Size         : 684 k
+Source       : curl-7.61.1-22.el8.src.rpm
+Repository   : @System
+From repo    : anaconda
+Summary      : A utility for getting files from remote servers (FTP, HTTP, and others)
+URL          : https://curl.haxx.se/
+License      : MIT
+Description  : curl is a command line tool for transferring data with URL syntax, supporting
+             : FTP, FTPS, HTTP, HTTPS, SCP, SFTP, TFTP, TELNET, DICT, LDAP, LDAPS, FILE, IMAP,
+             : SMTP, POP3 and RTSP.  curl supports SSL certificates, HTTP POST, HTTP PUT, FTP
+             : uploading, HTTP form based upload, proxies, cookies, user+password
+             : authentication (Basic, Digest, NTLM, Negotiate, kerberos...), file transfer
+             : resume, proxy tunneling and a busload of other useful tricks.
+```
+
+=== update
+```
+dnf update <package_name>
+```
+
+*Example*
+
+The following example demonstrates using the `dnf` command with the `update` subcommand to update the the `buildah` package stored on the host computer. The `-y` option overrides prompting the user for permission to upgrade the host computer.
+
+```
+$ sudo dnf update buildah -y
+Updating Subscription Management repositories.
+Last metadata expiration check: 1:24:13 ago on Tue 21 Jun 2022 06:18:32 AM PDT.
+Dependencies resolved.
+Nothing to do.
+Complete
+```
+
+=== repolist
+```
+dnf repolist
+```
+
+*Example*
+
+The following example demonstrates using the `dnf` command with the `repolist` subcommand to list the package repositories installed on the host computer.
+
+```
+$ sudo dnf repolist
+Updating Subscription Management repositories.
+repo id                                             repo name
+epel                                                Extra Packages for Enterprise Linux 8 - x86_64
+epel-modular                                        Extra Packages for Enterprise Linux Modular 8 - x86_64
+rhel-8-for-x86_64-appstream-rpms                    Red Hat Enterprise Linux 8 for x86_64 - AppStream (RPMs)
+rhel-8-for-x86_64-baseos-rpms                       Red Hat Enterprise Linux 8 for x86_64 - BaseOS (RPMs)
+```
+
+=== history
+```
+sudo dnf history
+```
+
+*Example*
+
+The following example demonstrates using the `dnf` command with the `history` subcommand to get the history of `dnf` activity on the host computer.
+
+```
+$ sudo dnf history
+Updating Subscription Management repositories.
+ID     | Command line                                                                                                 | Date and time    | Action(s)      | Altered
+--------------------------------------------------------
+     8 | install hwinfo -y                                                                                            | 2022-06-21 09:49 | Install        |    2   
+     7 | install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm                               | 2022-06-21 09:38 | Install        |    1   
+     6 | install gimp                                                                                                 | 2022-06-21 09:27 | Install        |   27   
+     5 | upgrade -y                                                                                                   | 2022-06-21 07:47 | I, U           |   64   
+     4 | install buildah -y                                                                                           | 2022-06-21 07:40 | Install        |    1   
+     3 | remove buildah -y                                                                                            | 2022-06-21 07:38 | Removed        |    1   
+     2 | install buildah -y                                                                                           | 2022-06-20 10:40 | Upgrade        |    1   
+     1 |                                                                                                              | 2022-06-20 09:10 | Install        | 1398 EE
+```
