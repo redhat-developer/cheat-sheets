@@ -1,382 +1,962 @@
-= Bash Shell Scripting
+= Bash Commands Cheat Sheet
 :experimental: true
-:product-name:
-:version: 1.0.0
+:product-name: Bash Commands Cheat Sheet
+:hide-uri-scheme:
 
-Bash is a version of the classic Unix shell with many enhancements. Bash is the default shell installed on GNU/Linux distributions and many other Unix-style systems. This cheat sheet covers some useful concepts in Bash scripting.
+A Bash script is a text file that contains programming statements that execute commands that are part of the host computer's operating system. Typically system administrators and programmers use Bash scripts to avoid having to repetitively execute tasks manually in a terminal.
 
-If a command in the examples produces output, the output is shown on the same line, separated from the command by a hash or pound sign (+#+).
+A typical use case for a Bash script is to do set up tasks for a newly provisioned computer. Thus, in addition to being a tool for system administrators and programmers, a Bash script can also be used by system provisioning software.
 
-== Bash Script Header
+== Running a Bash script
 
-[source, bash-shell, subs=attributes+]
-----
-#!/usr/bin/env bash
-echo "Hello World"
-----
+There are two ways to run a Bash script. The first way is to execute it as a parameter of a direct call to the `bash` executable binary, like so:
 
-== Variables & Strings
+```
+$ bash myscript
 
-[source, bash-shell, subs=attributes+]
-----
+Hello from Bash
+```
+
+*WHERE* the content of the file `myscript` is as follows:
+
+```
+echo "Hello from Bash"
+```
+
+The second way to use the `chmod` command to change the permissions of the bash script to make it a standalone executable, like so:
+
+```
+$ chmod +x ./myscript
+
+$ ./myscript
+```
+
+== Using a shebang header
+
+Unlike a binary executable file which knows how to interact with the computer's operating system directly, a Bash script, which is always text based, requires another program to run its commands. This other program in called an interpreter. The interpreter that runs a Bash script is, as the name implies, `bash`. However, in other cases, a bash script can be run by another interpreter that's installed on the host computer. An example of another interpreter is `sh`.
+
+The way a Bash script lets the operating system know which interpreter to use is according to a declaration made at the first line of the script. This first line declaration is called a script header. It is also called a https://en.wikipedia.org/wiki/Shebang_(Unix)[shebang]. A shebang starts with the characters `#!`
+
+An example of a shebang is as follows:
+
+```
+#!/usr/bin/bash
+```
+
+The shebang shown above tells the operating system to use the interpreter located at the filepath `/usr/bin/bash` to execute the lines of code that will follow in the script.
+
+Another form of a shebang is as follows:
+
+```
+#!/usr/env bash
+```
+
+The shebang `#!/usr/env bash` tells the operating system to search the computer's `$PATH` to find the `bash` interpreter. Thus, any instance of `bash` can be used as long as the it's in a location defined by the `$PATH` environment variable.
+
+=== Executing scripts in another language
+
+As mentioned above, a host operating system has be capability to run scripts for other interpreted programming languages as long as the given interpreter is installed on the host computer and the shebang has been configured properly.
+
+The example below shows a Perl script file. Notice that the script header (a.k.a. shebang) declares the file as a Perl script:
+
+```
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+print "Hello World from Perl\n";
+```
+== Variables
+
+Using variables is a critical factor for programming Bash scripts. The following sections describe various aspect of working with variables under Bash.
+
+=== Variable declaration
+
+You declare a variable in a bash script like so `VARIABLE_NAME=<value>` **WHERE**  `<value>` is the value assigned to the variable. Then, to reference the variable, put the `$` symbol before the variable name being referenced, like so: `$VARIABLE_NAME`.
+
+*Example:*
+
+```
 #!/usr/bin/env bash
 MSG="Hello World"
-echo "$MSG Alex" # Hello World Alex
-echo '$MSG Alex' # $MSG Alex
-----
+echo "$MSG " # Hello World
+```
 
-=== String Manipulation
+**BE CAREFUL** to make sure there is no space on either side of the `=` symbol when declaring a variable. The following will **not** work: `MYVARIABLE = foo`.
 
-[source, bash-shell, subs=attributes+]
-----
-MSG="hello world"
-# Replace
-echo ${MSG/w/W} #  hello World
-echo ${MSG//[a-zA-Z]/X} #  XXXXX XXXXX
-# Substring
-echo ${MSG:0:5} # hello 
-echo ${MSG%world} # hello  
-echo ${MSG#hello} # world  
-# Uppercase
-echo ${MSG^} # Hello world
-echo ${MSG^^} # HELLO WORLD
-MSG="HELLO WORLD"
-echo ${MSG,} # hELLO WORLD
-echo ${MSG,,} # hello world
-# Alternative
-echo ${MSG:-val} # HELLO WORLD
-echo ${FOO:-val} # val
-----
+=== String manipulation using parameter expansion
 
-== Functions
+Parameter expansion a technique to get the value from the referenced entity such as a variable in a Linux script or an environment variable according to a piece of processing logic. A variable is processed by enclosing the variable name within the `${  }` characters. The processing logic is defined by characters that follow the variable name. For example to the variable named `MSG`, the statement `${MSG^^}` turns all lowercase characters in the variable `MSG` to uppercase, like so:
 
-[source, bash-shell, subs=attributes+]
-----
-helloworld() {
-    echo "Number of arguments $#" # 2
-    echo "Hello World $1 from $2" # Hello World Alex from Bash
-}
-helloworld "Alex" "Bash"
-----
+```
+MSG="aBcDeFg"
+echo ${MSG^^}
 
-=== Returning Values
+#returns ABCDEFG
+```
 
-[source, bash-shell, subs=attributes+]
-----
-helloworld () {
-  return 46
-}
-helloworld
-echo $? # 46
-----
+And the statement `${MSG,,}` turns all uppercase characters in the variable `MSG` to lowercase, like so:
 
-Bash can return only a status code. To return a string, use command substitution:
+```
+MSG="aBcDeFg"
+echo ${MSG,,}
 
-[source, bash-shell, subs=attributes+]
-----
-helloworld() {
-echo 'My return string!'
-}
- 
-msg=$(helloworld)
-echo $msg
-----
+#returns abcdef
+```
+
+*Examples*
+
+The following examples demonstrate various ways use parameter expansion on Linux variables.
+
+*Word replacement*
+
+```
+MSG="Say hi to Chris and Sidney"
+echo ${MSG//Chris/Billy}
+
+#returns Say hi to Billy and Sidney
+```
+
+*Character replacement using regular expressions*
+
+Replace all alphabetic characters with the character `X` but leave numeral alone
+
+```
+MSG="I need 10"
+echo ${MSG//[a-zA-Z]/X}
+
+#returns X XXXX 10
+```
+
+---
+
+Replace all numeric characters with the character `Z` but leave alphabetic characters alone
+
+```
+MSG="I need 10"
+echo ${MSG//[0-9]/Z}
+
+#returns I need ZZ
+```
+
+*Extracting substrings*
+
+Use the `:` symbol to get the substring of all the characters after the starting at position 4
+
+```
+MSG="The Rolling Stones"
+echo ${MSG:4}
+
+#returns Rolling Stones
+```
+
+---
+
+Use the `:` symbol to get the substring that has 7 characters starting at position 4
+
+```
+MSG="The Rolling Stones"
+echo ${MSG:4:7}
+
+#returns Rolling
+```
+
+---
+
+Use the `#` symbol to get the substring after the characters `The` starting from the left side of the string
+
+```
+MSG="The Rolling Stones"
+echo ${MSG#The} 
+
+#returns Rolling Stones
+
+```
+
+---
+
+Use the `%` symbol to get the substring before the characters `Rolling Stones` starting the right side of the string
+
+```
+MSG="The Rolling Stones"
+echo ${MSG%Rolling Stones} 
+
+#returns The
+
+```
+
+*Case conversion*
+
+Use the `^` symbol to convert the first character in a string to uppercase.
+
+```
+MSG="aBcDeFg"
+echo ${MSG^}
+
+#returns ABcDeFg
+```
+
+---
+
+Use the `^^` symbols to convert the all lowercase characters in a string to uppercase.
+
+```
+ MSG="aBcDeFg"
+ echo ${MSG^^}
+
+ #returns ABCDEFG
+```
+
+---
+
+Use the `,` symbol to convert the first character in a string to lowercase.
+
+```
+ MSG="TuVwXyZ"
+ echo ${MSG,}
+
+ #returns tuVwXyZ
+
+```
+
+---
+
+Use the `,,` symbols to convert all characters in a string to lowercase.
+
+```
+ MSG="TuVwXyZ"
+ echo ${MSG,,}
+
+ #returns tuvwxyz
+
+```
 
 == Collections
 
+The following sections describe how to group data as a collection in a bash script. Bash supports two types of collection. One type is an `array`. The other type is a `map`.
+
+An `array` is a collection in which elements of the collection are accessed according to a number.
+
+A `map` is a collection in which elements of the collection a key value.
+
 === Arrays
 
-[source, bash-shell, subs=attributes+]
-----
-names=('Alex' 'Ada' 'Alexandra')
-names+=('Soto') # Appends element
-unset names[3] # Removes element
-----
+*Creating an array*
 
-[source, bash-shell, subs=attributes+]
-----
-echo ${names[0]} # Alex
-echo ${names[@]} # Alex Ada Alexandra 
+The following creates an array with three elements and assigns the array to the variable named `my_array`.
+
+```
+my_array=('Alex' 'Ada' 'Alexandra')
+```
+
+*Adding an element to an array*
+
+The following uses the `+=` operator to add an element with the value `Soto` to the array named `my_array`.
+
+```
+my_array+=('Soto')
+```
+
+*Removing  an element to an array*
+
+The following uses the `unset` keyword to remove the fourth element from the array named `my_array` at index `3`.
+
+```
+unset my_array[3]
+```
+
+*Viewing data in an array*
+
+The following uses an index number to view the data in the first element of the array named `my_array`.
+
+```
+echo ${my_array[0]}
+```
+
+The following uses an index number to view the data in the third element of the array named `my_array`.
+
+```
+echo ${my_array[2]}
+```
+
+The following uses the `@` symbol to view all elements in the array named `my_array`.
+
+```
+echo ${my_array[@]}
+```
+
+*Getting the number of elements in an array*
+
+The following uses the `#` and `@` symbols to get a count of the number of elements in the array named `my_array`.
+
+```
 echo ${#names[@]} # 3
-----
+```
+
+*Copy, paste and run in your terminal:*
+
+Copy and paste the following code into your terminal window to create and execute a Bash script with the filename `arrays-01.sh`.
+
+The Bash script demonstrates the array commands described above.
+
+```
+cat << 'EOF' > arrays-01.sh
+#!/usr/bin/env bash
+
+names=('Alex' 'Ada' 'Alexandra')
+names+=('Soto') # Appends element, Soto
+unset names[3] # Removes element at index 3, (Soto)
+
+echo ${names[0]} # Alex
+echo ${names[1]} # Ada
+echo ${names[2]} # Alexandra
+
+# @ indicates all elements in the array
+echo ${names[@]} # Alex Ada Alexandra
+
+# Count of names
+echo ${#names[@]} # 3
+EOF
+bash arrays-01.sh
+```
 
 === Maps
 
-[source, bash-shell, subs=attributes+]
-----
-declare -a score
+In Bash, a map is a collection of elements that are organized as key-value pairs. Another way to think of a map is as a named associative array.
+
+To access an element in a map you reference its key.
+
+*Creating a map*
+
+You create a map using the command `declare -A <map_name>` *WHERE* the option `-A` indicates that the variable represents an associative array, which is that same as a map.
+
+*Examples:*
+
+The following example demonstrates creating a map variable named `score`. The variable `score` has four elements that describe the scores of four people named `alex`, `edson`, `sebi` and `chris`.
+```
+declare -A score
 score[alex]="1"
 score[edson]="2"
 score[sebi]="3"
-unset score[alex]   # Delete alex entry
-----
+score[chris]="4"
+```
 
-[source, bash-shell, subs=attributes+]
-----
-echo ${!score[@]}  # alex edson sebi
-echo ${score[@]}   # 2 1 3
-echo ${#score[@]}  # 3
-----
+---
+The following example demonstrates using the `!` and `@` symbols to show all the keys in the map named `score`.
 
-== Conditionals
+```
+echo ${!score[@]}
+```
 
-[source, bash-shell, subs=attributes+]
-----
-if [[ $a -gt 4 ]]; then
-  echo "$a is greater than 4"
-elif [[ $a -lt 4 ]]; then
-  echo "$a less than 4"
-else
-  echo "$a is equal 4"
+---
+The following example demonstrates using the `unset` keyword to delete the element identified by the key `chris` from the map variable named `score`.
+
+```
+unset score[chris] # Delete chris entry
+```
+
+---
+The following example demonstrates using the `@` symbol to show all the values in the map named `score`.
+
+```
+echo ${score[@]} # show all the values
+```
+
+---
+The following example demonstrates calling the value of the element associated with the key `edson`.
+
+```
+echo ${score[edson]} # show the value of edson: 2
+```
+
+---
+The following example demonstrates using the `#` and `@` symbols to get a count of the number of elements in the map variable named `score`.
+
+```
+echo ${#score[@]} # show the number of elements in the map: 3
+```
+
+*Copy, paste and run in your terminal:*
+
+```
+cat << 'EOF' > maps-01.sh
+#!/usr/bin/env bash
+
+declare -A score
+score[alex]="1"
+score[edson]="2"
+score[sebi]="3"
+score[chris]="4"
+echo ${!score[@]} # alex edson sebi chris
+unset score[chris] # Delete chris entry
+echo ${score[@]} # show all the values
+echo ${!score[@]} # show all keys
+echo ${score[edson]} # show the value of edson: 2
+echo ${#score[@]} # show the number of elements in the map: 3
+EOF
+bash maps-01.sh
+```
+
+== Functions
+
+Functions provide a way to group commands in a bash script together under a common name for reuse.
+
+=== Basic function syntax 
+
+The following demonstrates basic function syntax. The function is named `printmessages`. The function uses the `echo` command to send two messages to standard output.
+
+```
+printmessages() {
+  echo "I am message 1"
+  echo "I am message 2"
+}
+```
+
+*Copy, paste and run in your terminal:*
+
+Copy and paste the following code into your terminal window to create and execute a Bash script that has a function named `printmessages`.
+
+```
+cat << 'EOF' > function-example-01.sh
+#!/usr/bin/env bash
+
+printmessages() {
+  echo "I am message 1"
+  echo "I am message 2"
+}
+
+# call the function
+printmessages
+EOF
+
+bash function-example-01.sh
+```
+
+=== Using parameters
+Parameters are passed to a function implicitly when added to the execution command of the function.
+
+Parameters are detected in a function by using the `$` symbol to call the parameter according the position of the parameter in the command line.
+
+The following code demonstrates a function that reads the parameter passed as the first argument in the command line
+
+```
+helloworld() {
+  echo "Hello World from $1"
+  }
+
+helloworld "Alex"
+```
+
+*Copy, paste and run in your terminal:*
+
+Copy and paste the following code into your terminal window to create and execute a Bash script that has a function named `helloworld` that processes the first parameter in the command line execution.
+
+```
+cat << 'EOF' > function-example-02.sh
+#!/usr/bin/env bash
+
+helloworld() {
+  echo "Hello World from $1"
+  }
+
+# call the function
+helloworld "Alex"
+EOF
+
+bash function-example-02.sh
+```
+
+Returns `Hello World from Alex`
+
+---
+
+*Copy, paste and run in your terminal:*
+
+Copy and paste the following code into your terminal window to create and execute a Bash script that has a function named `helloworld` that processes the two parameters in the command line execution.
+
+```
+cat << 'EOF' > function-example-03.sh
+#!/usr/bin/env bash
+
+helloworld() {
+  echo "Hello World from $1 and $2"
+  }
+
+# call the function
+helloworld "Alex" "Edson"
+EOF
+
+bash function-example-03.sh
+```
+
+Returns `Hello World from Alex and Edson`
+
+---
+
+=== Setting a global variable
+
+A function can write data to a variable previous defined in a Bash script. The following bash script demonstrates the technique.
+
+```
+function set_favorite_food(){
+  favorite_food=$1
+}
+
+favorite_food="apples"
+echo favorite_food
+
+set_favorite_food "cheese"
+
+echo favorite_food
+
+```
+
+*Copy, paste and run in your terminal:*
+
+```
+cat << 'EOF' > function-04.sh
+set_favorite_food(){
+  favorite_food=$1
+}
+
+favorite_food="apples"
+echo $favorite_food
+
+set_favorite_food "cheese"
+
+echo $favorite_food
+EOF
+
+bash function-04.sh
+```
+
+Returns 
+
+```
+apples
+cheese
+```
+
+== Conditional Statements
+
+A conditional statement is an `if..then..else` statement. When writing a conditional statement you check to see if an expression is true or false and respond accordingly.
+
+A simple conditional statement uses the following syntax:
+
+```
+if [<statement>]; then
+   <consequence statement(s)>
 fi
-----
+```
 
-=== Numeric Conditions
+**WHERE** `if`, `then` and `fi` are keywords with `if` indicating the beginning of the conditional statement and `fi` indicating the end of the conditional statement.
 
-[cols="25,75"]
-|===
-a|`[[ NUM -eq NUM ]]`	
-|Equal
+An `if..then` conditional statement uses the following syntax with the `else` keyword :
 
-a|`[[ NUM -ne NUM ]]`
-|Not equal
+```
+if [<statement>]; then
+   <consequence statement(s)>
+else
+  <consequence statement(s)>
+fi
+```
 
-a|`[[ NUM -lt NUM ]]`
-|Less than
+=== Numeric statements
 
-a|`[[ NUM -le NUM a]]`
-|Less than or equal to
+The following bash script demonstrates using a conditional statement to test numeric values. The code uses the `$RANDOM` function to get a random number. `$RANDOM` is defined by the operating system and always present. The `expr` keyword is the bash command that evaluates an expression. Also, the bash script uses the predefined modulus (`%`) operator which is available to the script by default from the operating system.
 
-a|`[[ NUM -gt NUM ]]`
-Greater than
+```
+  mynum=$RANDOM
+  echo $mynum
+  if [ $(expr $mynum % 2) == "0" ]; then
+      echo even
+  else
+    echo odd
+  fi
+```
 
-a|`[[ NUM -ge NUM ]]`
-Greater than or equal to
-|===
+*Copy, paste and run in your terminal:*
 
-=== String Conditions
+Copy and paste the following code into your terminal window to create and execute a Bash script that creates a random number and then runs an `if..then..else` conditional statement to determine if the random value is even or odd.
 
-[cols="25,75"]
-|===
-a|`[[ STRING == STRING ]]`	
-|Equal
+```
+cat << 'EOF' > conditional-example-01.sh
+#!/usr/bin/env bash
+mynum=$RANDOM
+echo $mynum
+if [ $(expr $mynum % 2) == "0" ]; then
+    echo even
+else
+  echo odd
+fi
+EOF
 
-a|`[[ STRING != STRING ]]`	
-|Not Equal
+bash conditional-example-01.sh
+```
 
-a|`[[ -z STRING ]]`	
-|Empty string
+=== String statements
 
-a|`[[ -n STRING ]]`	
-|Not empty string
+The following bash script demonstrates using a conditional statement to check if a word exists in a string.
 
-a|`[[ STRING =~ STRING ]]`	
-|Regular expression match
-|===
+```
+mystring="I like cherries"
+positive_indicator=" like "
+if [[ "$mystring" == *"$positive_indicator"* ]]; then
+  echo "It's a good review"
+fi
+EOF
+```
 
-=== File Conditions
+*Copy, paste and run in your terminal:*
 
-[cols="25,75"]
-|===
+Copy and paste the following code into your terminal window to create and execute a Bash script that tests if  certain substrings exists and do not exist in a string provided as a parameter to the script.
 
-a|`[[ -f FILE ]]`
-|Is a file
+```
+cat << 'EOF' > conditional-example-02.sh
+#!/usr/bin/env bash
+mystring=$1
 
-a|`[[ -d FILE ]]`
-|Is a directory
+positive_indicator=" like "
+negative_indicator=" don't "
 
-a|`[[ -e FILE ]]`
-|Exists
+if [[ ("$mystring" == *"$positive_indicator"* ) && ( "$mystring" != *"$negative_indicator"* )]]; then
+  echo "It's a good review."
+else
+  echo "It's a bad review."
+fi
 
-a|`[[ -r -w -x FILE ]]`	
-|Is readable, Writable, executable
+EOF
 
-a|`[[ -h FILE ]]`
-|Is symbolic link
-|===
+bash conditional-example-02.sh  "I like cherries"
 
-Boolean conditions:
+bash conditional-example-02.sh  "I hate cherries"
 
-a|`[[ ! EXPR ]]`
-|Not
+bash conditional-example-02.sh  "I don't like cherries"
 
-a|`[[ BOOL && BOOL ]]`
-|And
+bash conditional-example-02.sh  "I like apple"
 
-a|`[[ BOOL || BOOL ]]`
-|OR
+```
+
+=== File statements
+
+The following bash script demonstrates using a conditional statement to determine if a file exists.
+
+```
+FILE=/<path/to/filename>
+if test -f "$FILE"; then
+    echo "$FILE exists."
+fi
+```
+
+*Copy, paste and run in your terminal:*
+
+Copy and paste the following to create a file and then run the Bash script that checks for the file's existence.
+
+```
+touch newfile.txt
+
+cat << 'EOF' > conditional-example-03.sh
+#!/usr/bin/env bash
+FILE=newfile.txt
+if test -f "$FILE"; then
+    echo "$FILE exists."
+fi
+EOF
+
+bash conditional-example-03.sh
+
+```
 
 == Loops
 
-[source, bash-shell, subs=attributes+]
-----
-for ((i = 0 ; i < 10 ; i++)); do
-  echo "Hello World $i"
-done
-----
+Looping is a technique that enables Bash scripts to run programming statements and expressions continuously.
+
+The following section different types of loops.
 
 === Range
 
-[source, bash-shell, subs=attributes+]
-----
+The following code demonstrates running a loop over a range according to lower and upper limits.
+```
 for i in {1..5}; do
-    echo "Hello World $i"
+  echo "Hello World $i"
 done
-----
+```
 
-=== Collections
+*Copy, paste and run in your terminal:*
 
-Print all elements from a plain array:
+Copy and paste the code to run a Bash script that runs a loop over 5 iterations.
 
-[source, bash-shell, subs=attributes+]
-----
+```
+cat << 'EOF' > basic-range-01.sh
+#!/usr/bin/env bash
+
+for i in {1..5}; do
+  echo "Hello World $i"
+done
+
+EOF
+
+bash basic-range-01.sh
+```
+
+=== Looping Collections
+
+The following code uses the `do` keyword to demonstrate running printing all elements from a plain array:
+
+```
 for i in "${names[@]}"; do
   echo "Hello $i"
 done
-----
+```
 
-Print keys and values of all elements from a key/value array:
+*Copy, paste and run in your terminal:*
 
-[source, bash-shell, subs=attributes+]
-----
+Copy and paste the code to run a Bash script that prints all the elements in an array using a `for` loop and the `@` keyword.
+
+```
+cat << 'EOF' > range-names-01.sh
+#!/usr/bin/env bash
+
+names=('Alex' 'Ada' 'Alexandra', 'Soto')
+
+for i in "${names[@]}"; do
+  echo "Hello $i"
+done
+
+EOF
+
+bash range-names-01.sh
+```
+
+---
+
+Print keys of all elements from a key/value array:
+
+```
 for key in "${!score[@]}"; do
   echo $key
 done
-----
+```
 
-[source, bash-shell, subs=attributes+]
-----
+*Copy, paste and run in your terminal:*
+
+Copy and paste the code to run a Bash script that prints all the elements in a key/value array.
+
+```
+cat << 'EOF' > range-keys-01.sh
+#!/usr/bin/env bash
+
+declare -A score
+
+score[alex]="1"
+score[edson]="2"
+score[sebi]="3"
+score[chris]="4"
+
+for key in "${!score[@]}"; do
+  echo $key
+done
+
+EOF
+bash range-keys-01.sh
+```
+
+---
+
+Print values of all elements from a key/value array:
+
+```
 for val in "${score[@]}"; do
   echo $val
 done
-----
+```
 
-=== Files
+*Copy, paste and run in your terminal:*
 
-[source, bash-shell, subs=attributes+]
-----
-for i in /tmp/*.txt; do
+```
+cat << 'EOF' > value-keys-01.sh
+#!/usr/bin/env bash
+
+declare -A score
+
+score[alex]="1"
+score[edson]="2"
+score[sebi]="3"
+score[chris]="4"
+
+for val in "${score[@]}"; do
+  echo $val
+done
+
+EOF
+bash value-keys-01.sh
+```
+
+=== Files and directories
+
+*Get all files in a directory sub-directories*
+
+The following script gets all files in the directory `/tmp` that have the extension `.log`:
+
+```
+for i in /tmp/*.log; do
   echo $i
 done
-----
+```
 
-[source, bash-shell, subs=attributes+]
-----
-cat /tmp/hello.txt | while read line; do
-  echo $line
+*Copy, paste and run in your terminal:*
+
+```
+cat << 'EOF' > files-01.sh
+#!/usr/bin/env bash
+
+echo All log files in the /tmp directory
+
+for i in /tmp/*.log; do
+  echo $i
 done
-----
+EOF
+bash files-01.sh
+```
 
-=== While
+---
 
-[source, bash-shell, subs=attributes+]
-----
+*Get all sub-directories*
+
+The following script gets all subdirectories in the directory `/var`
+
+```
+for i in /var/*; do
+  echo $(basename "$i")
+done
+```
+
+*Copy, paste and run in your terminal:*
+
+Copy and paste the code to run a Bash script traverses all the subdirectories in the directory `/var`.
+
+```
+cat << 'EOF' > files-02.sh
+#!/usr/bin/env bash
+
+echo All subdirectories in /var
+
+for i in /var/*; do
+  echo $(basename "$i")
+done
+EOF
+
+bash files-02.sh
+```
+
+=== While loop
+
+A while loops runs continuously until a certain condition is met.
+
+The following code uses the less then or equal to symbol `-le` to run a loop until the counter variable `x` reaches the number `5`.
+
+```
 x=1;
 while [ $x -le 5 ]; do
   echo "Hello World"
+  ((x=x+1))
 done
-----
+```
 
-== Executing commands
+*Copy, paste and run in your terminal:*
 
-Execute a command and check the exit status:
+Copy and paste the following code to create and run a Bash script that demonstrates a `while` loop.
 
-[source, bash-shell, subs=attributes+]
-----
-cat /tmp/hello.txt 
- 
-if [ $? -eq 0 ]
-then
-  echo "OK"
-else
-  echo "KO"
+```
+cat << 'EOF' > while-loop-01.sh
+#!/usr/bin/env bash
+
+x=1;
+while [ $x -le 5 ]; do
+  echo "Hello World"
+  ((x=x+1))
+done
+EOF
+
+bash while-loop-01.sh
+```
+
+== Working with status codes
+
+Reporting success and error is a Bash script is accomplished using status codes. By convention success is reported exiting with the number `0`. Any number greater than `0` indicates an error. Also, there is a convention for error numbers which is explained in the article on Red Hat System Admin https://www.redhat.com/sysadmin/exit-codes-demystified[Bash command line exit codes demystified].
+
+=== Using the exit keyword 
+
+The following demonstrates Bash code that returns an error code `22` when the script is executed without a parameter.
+
+```
+if [ -z "$1" ]; then 
+  echo "No parameter";
+  exit 22;
 fi
-----
+```
 
-To get the output of a command, surround the call with "\`" character:
+*Copy, paste and run in your terminal:*
 
-[source, bash-shell, subs=attributes+]
-----
-lines=(`cat "/tmp/hello.txt"`)
-lines="$(cat "/tmp/hello.txt)"
-----
+Copy and paste the following code to create and run a Bash script that returns an error code when the script is executed without a parameter.
 
-== Useful snippets
+```
+cat << 'EOF' > status-code-01.sh
+#!/usr/bin/env bash
+if [ -z "$1" ]; then 
+  echo "No parameter";
+  exit 22;
+fi
+EOF
 
-=== Getting the Script Directory
+bash status-code-01.sh
 
-[source, bash-shell, subs=attributes+]
-----
-DIR="${0%/*}"
-----
+echo $?
+```
 
-==== Reading CLI Arguments:
+Returns 22
 
-[source, bash-shell, subs=attributes+]
-----
-echo "$1 $2"
-#######
-execute.sh "Hello" "Alex"
-# Hello Alex
-----
+=== Return a status value from a function
 
-=== Print Output
+The following code demonstrates using the `return` keyword to return a status code from a function in a Bash script.
 
-[source, bash-shell, subs=attributes+]
-----
-printf "\n\n######## Deploying ########\n"
-----
+```
+function echoMessage(){
+  if [ -z "$1" ]; then 
+   return 22;
+  fi
+}
+```
 
-=== Read Input
+```
+cat << 'EOF' > status-code-02.sh
+#!/usr/bin/env bash
+function echoMessage(){
+  if [ -z "$1" ]; then 
+   return 22;
+  fi
 
-[source, bash-shell, subs=attributes+]
-----
-echo -n "Enter name: "
-read ans
-echo $ans
-----
+  echo $1 after the IF/THEN STATEMENT
+}
 
-=== Create File with Content
+echoMessage
+res=$?
+echo The first result of the call to echoMessage is $res
 
-[source, bash-shell, subs=attributes+]
-----
-echo "
-apiVersion: apiserver.config.k8s.io/v1
-kind: EncryptionConfiguration
-resources:
-  - resources:
-    - secrets
-    providers:
-    - aescbc:
-        keys:
-        - name: key1
-          secret: b6sjdRWAPhtacXo8mO1cfgVYWXzwuls3T3NQOo4TBhk= 
-    - identity: {}
-"  | tee /var/lib/minikube/certs/encryptionconfig.yaml
-----
+echoMessage "Bash Rocks!"
 
-=== Subshell
+res=$?
+echo The second result of the call to echoMessage is $res
 
-A shell script can launch subshells. These subshells let the script do parallel processing, in effect executing multiple subtasks simultaneously.
+EOF
 
-[source, bash-shell, subs=attributes+]
-----
-(
-# Inside parentheses, and therefore a subshell . . .
-while [ 1 ]   # Endless loop.
-do
-  echo "Subshell"
-done
-)
-----
+bash status-code-02.sh
+```
+Returns
 
-Run the following command in a new terminal:
+```
+The first result of the call to echoMessage is 22
+Bash Rocks! after the IF/THEN STATEMENT
+The second result of the call to echoMessage is 0
+```
 
-[source, bash-shell, subs=attributes+]
-----
-ps -ef | grep execute.sh
-501  4286   641   0 11:17AM ttys007    0:00.00 /bin/bash ./execute.sh
-501  4287  4286   0 11:17AM ttys007    0:07.67 /bin/bash ./execute.sh
-----
-
-Two processes are started. The first one (4286) as parent of the second.

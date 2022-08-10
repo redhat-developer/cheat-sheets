@@ -5,15 +5,15 @@
 
 Version 8 of Red Hat Enterprise Linux (RHEL) provides an upgraded package manager that replaces the classic `yum` application. This new package manager is named `dnf`, which is an abbreviation for _Dandified yum_.
 
-REHL 8 also ships with two related useful features:
+RHEL 8 also ships with two related useful features:
 
 Subscription Manager::
 This keeps track of the various remote repositories that host application packages. The Subscription Manager does the work of binding to a repository, so developers don't have to write code to do the binding.
 
 Application Streams::
-This provides the capability of running multiple versions of a given program or module on a local machine, allowing a developer to switch between different versions on demand. The developer doesn't have to manage the details of upgrading or downgrading an application or module. For example, a developer can install Node.js version 10 and then later upgrade to Node.js version 16, leaving both versions available in different streams. The developer can run version 10 of Node.js to meet a special need for an old application, and quickly switch to version 16 when that version is needed.
+This provides the ability to run multiple versions of a given program or module on a local machine, allowing a developer to switch between different versions on demand. The developer doesn't have to manage the details of upgrading or downgrading an application or module. For example, a developer can install Node.js version 10 and then later upgrade to Node.js version 16, leaving both versions available in different streams. The developer can run version 10 of Node.js to meet a special need for an old application, and quickly switch to version 16 when that version is needed.
 
-This cheat sheet covers the basic `dnf` commands along with an introduction to Subscription Manager and Application Streams. In addition, the commands for installing many popular modules, applications, and programming languages are shown at the end of the cheat sheet.
+This cheat sheet covers the basic `dnf` commands along with an introduction to Subscription Manager and application streams. In addition, the commands for installing many popular modules, applications, and programming languages are shown at the end of the cheat sheet.
 
 == Basic dnf commands
 
@@ -25,7 +25,7 @@ The following sections show `dnf` command that can be used to search for modules
 dnf [options] search <search_string>
 ----
 
-Searches for packages whose names or summaries contain `<search_string>`
+Searches for packages whose names or summaries contain `<search_string>`.
 
 *Example:*
 
@@ -98,7 +98,7 @@ Installs a module on the local machine.
 
 *Example:*
 
-The following command installs the`perl` programming language on the local computer. The command uses the `-y` option to suppress the prompt asking the user for permission to proceed:
+The following command installs the `perl` programming language on the local computer. The command uses the `-y` option to suppress the prompt that asks the user for permission to proceed:
 
 ----
 sudo dnf install -y perl
@@ -339,7 +339,7 @@ Enables access to a remote package repository via the Subscription Manager.
 
 *Examples:*
 
-The following command uses the `repos` subcommand to list the various artifact repositories available via the Subscription Manager. The `repos` subcommand requires root access. The command prompts for the root password if it is not executed as root:
+The following command uses the `repos` subcommand to list the various artifact repositories available via the Subscription Manager. The `repos` subcommand requires root access. The command prompts for the root password if it is not executed as root.
 
 The following belows shows only a portion of the full output:
 
@@ -795,7 +795,7 @@ The following command installs the Apache HTTP web server:
 sudo dnf install httpd
 ----
 
-The following command installs the nginx web server;
+The following command installs the nginx web server:
 
 ----
 sudo dnf install nginx
