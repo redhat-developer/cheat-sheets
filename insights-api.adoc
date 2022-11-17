@@ -58,7 +58,7 @@ GET /inventory/v1/hosts/<uuid>/system_profile
 
 Get facts about a specific system’s system profile (e.g., `last_boot_time` and `os_kernel_version`):
 ----
-GET /inventory/v1/hosts/<uuid>/system_profile+?fields[system_profile]=last_boot_time,os_kernel_version
+GET /inventory/v1/hosts/<uuid>/system_profile?fields[system_profile]=last_boot_time,os_kernel_version
 ----
 
 NOTE: Only the following facts are syndicated at present: `bios_release_date`, `bios_vendor`, `bios_version`, `infrastructure_type`, `operating_system`, `owner_id`, `rhsm`, `sap_sids`, `sap_system`.
